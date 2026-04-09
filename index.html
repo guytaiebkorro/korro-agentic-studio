@@ -393,44 +393,48 @@ function SlideGameDirection() {
 }
 
 function SlideArchitecture() {
-  var archCards = [
-    { title:"Agents handle",  items:["Game manifests and level authoring","All adapter and integration code","Mechanics, analytics, and flow specs","Scriptable asset generation"] },
-    { title:"Team handles",   items:["Steering agents and reviewing output","Prefab construction and asset authoring","System integrity and architecture","Design quality and creative direction"] },
-    { title:"The hard rule",  items:["Minimal inspector cross-references in AgentGames","If it needs dragging in Unity, it is wrong","Config is code, not prefab data"] },
+  var archShifts = [
+    { area:"Game definition", gain:"Games become data, not wired prefabs", color:"#EEEDFE", border:"#AFA9EC", tc:"#534AB7",
+      before:"Each game is a collection of inspector-wired prefabs, custom editors, and blackboard containers. Building a new game means duplicating and rewiring by hand.",
+      after:"Games are defined in YAML manifests. An agent can author a full game from a spec - no dragging, no wiring, no duplication." },
+    { area:"Integration", gain:"Shared systems accessed through adapters, not inheritance", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041",
+      before:"New games inherit from shared systems directly. Tight coupling means every change risks breaking something else.",
+      after:"Shared systems (Flow, Scoring, Tutorials) are wrapped in thin adapters. New games plug in cleanly - old games stay untouched." },
+    { area:"Asset loading", gain:"Assets referenced by key, not by inspector drag", color:"#FFF4E0", border:"#E0A84C", tc:"#6B4A0A",
+      before:"Assets are wired through inspector references. Moving or renaming anything cascades through the project.",
+      after:"Assets are loaded by addressable key. Agents can generate, swap, and manage assets without touching the scene graph." },
+    { area:"Time to ship", gain:"Prototypes in hours, full games in days", color:"#F0E8FF", border:"#C4A8F0", tc:"#4A2080",
+      before:"A playable prototype takes 3-5 days. A full-featured mini-game with levels takes around 4 weeks of programming.",
+      after:"A playable prototype in hours - agents handle the scaffolding, manifests replace manual setup. The programming effort for a full mini-game with levels reduces from weeks to days." },
+    { area:"Robustness", gain:"Adding more games cannot break what already works", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
+      before:"Games share assemblies, prefabs, and editor references. A change in one game can silently break another. The system gets more fragile with every title added.",
+      after:"Hard boundaries between games and shared systems. Each game operates within its own manifest and adapters. The system stays stable, easy to extend, and safe to grow - no matter how many games sit on top of it." },
   ];
   var [expanded, setExpanded] = useState(-1);
   function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
-      <SlideHeader title="The architecture shift" subtitle="A new assembly sits alongside the existing codebase. Legacy stays untouched. New games are built entirely from manifests." />
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"var(--gap-card)" }}>
-        <div style={{ background:"var(--bg2)", borderRadius:10, padding:"var(--pad-card)" }}>
-          <SectionLabel>Legacy (unchanged)</SectionLabel>
-          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:1.8 }}>
-            15 existing games<br/>Inspector-wired prefabs<br/>Blackboard key containers<br/>Custom editors and tools<br/>All existing shared systems
-          </div>
-          <div style={{ marginTop:"0.65rem", fontSize:"var(--fs-small)", color:"var(--t3)", fontStyle:"italic" }}>Nothing breaks. No migration required.</div>
-        </div>
-        <div style={{ background:"#EEEDFE", border:"0.5px solid #AFA9EC", borderRadius:10, padding:"var(--pad-card)" }}>
-          <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:"0.6rem" }}>AgentGames (new)</div>
-          <div style={{ fontSize:"var(--fs-small)", color:"#3C3489", lineHeight:1.8 }}>
-            Separate assembly - hard boundary<br/>Games defined in YAML manifests<br/>Assets loaded by address key<br/>            Minimal inspector references<br/>Shared systems wrapped via adapters
-          </div>
-          <div style={{ marginTop:"0.65rem", fontSize:"var(--fs-small)", color:"#534AB7", fontStyle:"italic" }}>All new games built here.</div>
-        </div>
-      </div>
+      <SlideHeader title="The architecture shift" subtitle="A new assembly sits alongside the existing codebase. Legacy stays untouched. The gains compound with every game." />
       <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-        {archCards.map(function(c, i) {
+        {archShifts.map(function(s, i) {
           var isOpen = expanded === i;
           return (
-            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?"var(--b2)":"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?s.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
               <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
-                <div style={{ fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)", flex:1 }}>{c.title}</div>
+                <Badge color={s.color} border={s.border} tc={s.tc}>{s.area}</Badge>
+                <div style={{ flex:1, fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>{s.gain}</div>
                 <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
               </div>
               {isOpen && (
-                <div className="slide-enter" style={{ marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
-                  <ul>{c.items.map(function(item, j) { return <li key={j}>{item}</li>; })}</ul>
+                <div className="slide-enter" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1rem", marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Today</div>
+                    <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)", lineHeight:"var(--lh-body)" }}>{s.before}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Agentic</div>
+                    <div style={{ fontSize:"var(--fs-small)", color:"#3C3489", lineHeight:"var(--lh-body)", fontWeight:500 }}>{s.after}</div>
+                  </div>
                 </div>
               )}
             </div>

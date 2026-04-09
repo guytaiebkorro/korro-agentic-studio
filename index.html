@@ -396,13 +396,13 @@ function SlideArchitecture() {
   var archCards = [
     { title:"Agents handle",  items:["Game manifests and level authoring","All adapter and integration code","Mechanics, analytics, and flow specs","Scriptable asset generation"] },
     { title:"Team handles",   items:["Steering agents and reviewing output","Prefab construction and asset authoring","System integrity and architecture","Design quality and creative direction"] },
-    { title:"The hard rule",  items:["Zero inspector cross-references in AgentGames","If it needs dragging in Unity, it is wrong","Config is code, not prefab data"] },
+    { title:"The hard rule",  items:["Minimal inspector cross-references in AgentGames","If it needs dragging in Unity, it is wrong","Config is code, not prefab data"] },
   ];
   var [expanded, setExpanded] = useState(-1);
   function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
-      <SlideHeader title="Code architecture implications" subtitle="A new layer lives alongside the existing codebase - not replacing it." />
+      <SlideHeader title="The architecture shift" subtitle="A new assembly sits alongside the existing codebase. Legacy stays untouched. New games are built entirely from manifests." />
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"var(--gap-card)" }}>
         <div style={{ background:"var(--bg2)", borderRadius:10, padding:"var(--pad-card)" }}>
           <SectionLabel>Legacy (unchanged)</SectionLabel>
@@ -414,7 +414,7 @@ function SlideArchitecture() {
         <div style={{ background:"#EEEDFE", border:"0.5px solid #AFA9EC", borderRadius:10, padding:"var(--pad-card)" }}>
           <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:"0.6rem" }}>AgentGames (new)</div>
           <div style={{ fontSize:"var(--fs-small)", color:"#3C3489", lineHeight:1.8 }}>
-            Separate assembly - hard boundary<br/>Games defined in YAML manifests<br/>Assets loaded by address key<br/>No inspector references anywhere<br/>Shared systems wrapped via adapters
+            Separate assembly - hard boundary<br/>Games defined in YAML manifests<br/>Assets loaded by address key<br/>            Minimal inspector references<br/>Shared systems wrapped via adapters
           </div>
           <div style={{ marginTop:"0.65rem", fontSize:"var(--fs-small)", color:"#534AB7", fontStyle:"italic" }}>All new games built here.</div>
         </div>
@@ -582,18 +582,56 @@ function NavButton({ onClick, disabled, children }) {
   );
 }
 
+// Set to true to require password on launch
+const REQUIRE_PASSWORD = false;
+
+function PasswordGate({ onUnlock }) {
+  var [pw, setPw] = useState("");
+  var [error, setError] = useState(false);
+  function handleSubmit(e) {
+    if (e) e.preventDefault();
+    if (pw === "KorroAgentic1!") { onUnlock(); }
+    else { setError(true); setTimeout(function() { setError(false); }, 1500); }
+  }
+  return (
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:"100vh", gap:"1.5rem", padding:"2rem" }}>
+      <div style={{ textAlign:"center" }}>
+        <div style={{ fontSize:"var(--fs-label)", fontWeight:500, letterSpacing:"0.08em", color:"var(--t3)", textTransform:"uppercase", marginBottom:"0.6rem" }}>Korro Studio</div>
+        <h1 style={{ fontSize:"var(--fs-h2)", fontWeight:700, color:"var(--t1)", letterSpacing:"-0.02em" }}>Agentic Pipeline</h1>
+        <p style={{ fontSize:"var(--fs-small)", color:"var(--t3)", marginTop:"0.5rem" }}>Enter password to continue</p>
+      </div>
+      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+        <input
+          type="password"
+          value={pw}
+          onChange={function(e) { setPw(e.target.value); }}
+          onKeyDown={function(e) { if (e.key === "Enter") handleSubmit(); }}
+          placeholder="Password"
+          style={{ fontSize:"var(--fs-body)", padding:"8px 14px", borderRadius:8, border:"0.5px solid "+(error?"#F09595":"var(--b3)"), outline:"none", width:220, background:error?"#FCEBEB":"var(--bg1)", transition:"border-color 0.2s, background 0.2s", fontFamily:"inherit" }}
+        />
+        <button onClick={handleSubmit} style={{ fontSize:"var(--fs-small)", padding:"8px 18px", borderRadius:8, border:"0.5px solid var(--b2)", background:"var(--t1)", color:"var(--bg1)", fontWeight:500, fontFamily:"inherit" }}>Enter</button>
+      </div>
+      {error && <div style={{ fontSize:"var(--fs-small)", color:"#791F1F" }}>Incorrect password</div>}
+    </div>
+  );
+}
+
 function App() {
+  var [unlocked, setUnlocked] = useState(!REQUIRE_PASSWORD);
   var [current, setCurrent] = useState(0);
   var SlideContent = slideComponents[current];
 
   useEffect(function() {
     function handleKey(e) {
+      if (!unlocked) return;
       if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); setCurrent(function(c) { return Math.min(slideLabels.length - 1, c + 1); }); }
       if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); setCurrent(function(c) { return Math.max(0, c - 1); }); }
     }
     window.addEventListener("keydown", handleKey);
     return function() { window.removeEventListener("keydown", handleKey); };
-  }, []);
+  }, [unlocked]);
+
+  if (!unlocked) return <PasswordGate onUnlock={function() { setUnlocked(true); }} />;
 
   return (
     <div style={{ display:"flex", flexDirection:"column", height:"100vh", minHeight:600 }}>

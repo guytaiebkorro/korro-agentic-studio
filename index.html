@@ -353,6 +353,16 @@ function SlideDesign() {
 }
 
 function SlideGameDirection() {
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  var directionShifts = [
+    { title:"Why 2D and agents fit", summary:"2D assets are what generative pipelines handle best today",
+      body:"Sprites, UI, backgrounds - these are what agents can batch-generate reliably. The agent-friendly workflow and the 2D direction reinforce each other." },
+    { title:"Visual design already there", summary:"The studio was already moving this way organically",
+      body:"The shift in visual language has been happening naturally. The agentic pipeline formalises and accelerates a direction the design team was already heading toward." },
+    { title:"3D where it earns its place", summary:"A deliberate choice, not the default",
+      body:"3D is not off the table. Games where depth, perspective, or physicality genuinely serve the experience can still go there - but it becomes a conscious decision with clear justification." },
+  ];
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
       <SlideHeader title="A shift in game direction" subtitle="The move to agentic production and the move to 2D are the same decision." />
@@ -360,31 +370,32 @@ function SlideGameDirection() {
         <div style={{ background:"var(--bg2)", borderRadius:10, padding:"var(--pad-card)", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
           <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em" }}>Previously - 3D first</div>
           <VideoWithFallback src="https://www.dropbox.com/scl/fi/jepgojjwf0a4aoir00d6w/Screen-Recording-2026-04-07-at-0.40.48.mov?rlkey=62jonxe6su4raoxuepgpjvv7g&raw=1" label="3D gameplay preview" borderColor="var(--b3)" />
-          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:1.8 }}>
-            3D models, rigs, and animations per game<br/>Custom shaders and materials<br/>Complex 3D scene composition<br/>High asset production cost per title<br/>Long iteration cycles on look and feel
-          </div>
-          <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)", fontStyle:"italic" }}>Heavy production overhead on every game.</div>
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)", fontStyle:"italic" }}>High asset cost per title. Long iteration cycles.</div>
         </div>
         <div style={{ background:"#EEEDFE", border:"0.5px solid #AFA9EC", borderRadius:10, padding:"var(--pad-card)", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
           <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em" }}>Going forward - 2D first</div>
           <VideoWithFallback src="https://www.dropbox.com/scl/fi/5tl77per5m9udr39ldq2t/Screen-Recording-2026-04-07-at-0.42.28.mov?rlkey=f4lvje6b6ufcfdrmw8cv7b342&raw=1" label="2D gameplay preview" borderColor="#AFA9EC" />
-          <div style={{ fontSize:"var(--fs-small)", color:"#3C3489", lineHeight:1.8 }}>
-            Sprites, rigs, and 2D animations - faster to produce and iterate<br/>Flat and illustrated visual language - already where our design is heading<br/>Agent-friendly asset pipeline - batch generation works naturally in 2D<br/>Lower per-game production cost, higher output velocity<br/>3D not abandoned - used selectively where it genuinely adds value
-          </div>
-          <div style={{ fontSize:"var(--fs-small)", color:"#534AB7", fontStyle:"italic" }}>Production speed and visual direction aligned.</div>
+          <div style={{ fontSize:"var(--fs-small)", color:"#534AB7", fontStyle:"italic" }}>Faster to produce, iterate, and agent-generate.</div>
         </div>
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"var(--gap-card)" }}>
-        {[
-          { title:"Why 2D and agents fit", body:"2D assets - sprites, UI, backgrounds - are what generative pipelines handle best today. The agent-friendly workflow and the 2D direction reinforce each other." },
-          { title:"Visual design already there", body:"The shift in visual language has been happening organically. The agentic pipeline formalises and accelerates a direction the studio was already moving toward." },
-          { title:"3D where it earns its place", body:"3D is not off the table. Games where depth, perspective, or physicality genuinely serve the experience can still go there - it becomes a deliberate choice, not the default." },
-        ].map(function(c, i) {
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {directionShifts.map(function(s, i) {
+          var isOpen = expanded === i;
           return (
-            <CardBox key={i}>
-              <div style={{ fontSize:"var(--fs-small)", fontWeight:500, color:"var(--t1)", marginBottom:"0.4rem" }}>{c.title}</div>
-              <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{c.body}</div>
-            </CardBox>
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?"var(--b2)":"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>{s.title}</div>
+                  <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)", marginTop:2 }}>{s.summary}</div>
+                </div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{s.body}</div>
+                </div>
+              )}
+            </div>
           );
         })}
       </div>

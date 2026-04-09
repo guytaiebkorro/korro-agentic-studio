@@ -612,8 +612,11 @@ function PasswordGate({ onUnlock }) {
   var [error, setError] = useState(false);
   function handleSubmit(e) {
     if (e) e.preventDefault();
-    if (pw === "KorroAgentic1!") { onUnlock(); }
-    else { setError(true); setTimeout(function() { setError(false); }, 1500); }
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(pw)).then(function(buf) {
+      var hash = Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2,"0"); }).join("");
+      if (hash === "69701f096901b699e4c1fe6b4f859a81befe255e5a5ab2ee52d225df1849cb3e") { onUnlock(); }
+      else { setError(true); setTimeout(function() { setError(false); }, 1500); }
+    });
   }
   return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:"100vh", gap:"1.5rem", padding:"2rem" }}>

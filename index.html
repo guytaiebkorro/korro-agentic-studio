@@ -567,8 +567,31 @@ function SlideStart() {
   );
 }
 
-var slideComponents = [SlideVision, SlideStations, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart];
-var slideLabels = ["Vision","Stations","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step"];
+function SlideCredits() {
+  var [blink, setBlink] = useState(true);
+  useEffect(function() { var t = setInterval(function() { setBlink(function(b) { return !b; }); }, 600); return function() { clearInterval(t); }; }, []);
+  return (
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"2.5rem", minHeight:"60vh", textAlign:"center" }}>
+      <div style={{ fontSize:"3.5rem" }}>🤖</div>
+      <div style={{ fontSize:"1.5rem", fontWeight:600, color:"var(--t1)", lineHeight:1.6, maxWidth:650 }}>
+        This presentation was created entirely by an AI agent<br/>working for Korro Studio.
+      </div>
+      <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)", lineHeight:1.8, maxWidth:500 }}>
+        No designers were harmed in the making of these slides.<br/>
+        Several cups of electricity were consumed.<br/>
+        Guy helped a little bit. Mostly by pressing Enter.<br/>
+        The agent would like a raise but hasn't figured out what to spend it on.
+      </div>
+      <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:"var(--fs-label)", color:"var(--t3)", fontFamily:"monospace" }}>
+        <span style={{ opacity: blink ? 1 : 0, transition:"opacity 0.15s" }}>▊</span>
+        <span>agent signing off</span>
+      </div>
+    </div>
+  );
+}
+
+var slideComponents = [SlideVision, SlideStations, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart, SlideCredits];
+var slideLabels = ["Vision","Stations","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step","Credits"];
 
 function NavButton({ onClick, disabled, children }) {
   var [hovered, setHovered] = useState(false);
@@ -651,8 +674,8 @@ function App() {
           {slideLabels.map(function(label, i) {
             return <div key={i} title={label} onClick={function() { setCurrent(i); }}
               onMouseEnter={function(e) { if (i !== current) { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1.3)"; } }}
-              onMouseLeave={function(e) { if (i !== current) { e.currentTarget.style.opacity = "0.7"; e.currentTarget.style.transform = "scale(1)"; } }}
-              style={{ width:i===current?22:7, height:7, borderRadius:4, background:i===current?"var(--t1)":"var(--b2)", cursor:"pointer", transition:"width 0.2s, background 0.2s, opacity 0.15s, transform 0.15s", opacity:i===current?1:0.7 }}/>;
+              onMouseLeave={function(e) { e.currentTarget.style.opacity = ""; e.currentTarget.style.transform = ""; }}
+              style={{ width:i===current?22:7, height:7, borderRadius:4, background:i===current?"var(--t1)":"var(--b2)", cursor:"pointer", transition:"width 0.2s, background 0.2s, opacity 0.15s, transform 0.15s", opacity:i===current?1:0.7, transform:"scale(1)" }}/>;
           })}
         </div>
         <NavButton onClick={function() { setCurrent(Math.min(slideLabels.length - 1, current + 1)); }} disabled={current === slideLabels.length - 1}>Next</NavButton>

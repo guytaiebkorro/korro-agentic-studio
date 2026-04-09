@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Korro - Agentic Studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body, #root { height: 100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #fff; color: #1a1a18; }
+  :root {
+    --bg1: #ffffff; --bg2: #f4f3ee; --bg3: #eceae3;
+    --t1: #1a1a18; --t2: #3d3d3a; --t3: #5f5e5a;
+    --b1: rgba(0,0,0,0.4); --b2: rgba(0,0,0,0.3); --b3: rgba(0,0,0,0.15);
+    --fs-hero: 46px; --fs-h2: 30px; --fs-body: 16px; --fs-body-lg: 17px;
+    --fs-small: 14px; --fs-label: 12px; --fs-stat: 36px;
+    --fw-heading: 600; --fw-body: 400;
+    --lh-body: 1.6; --lh-tight: 1.4;
+    --gap-section: 2rem; --gap-card: 14px;
+    --pad-card: 1.2rem 1.4rem; --pad-slide: 2.8rem 3.5rem;
+  }
+  @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .slide-enter { animation: fadeSlideIn 0.2s ease-out; }
+  .slide-container { max-width: 1100px; margin: 0 auto; width: 100%; }
+  button { font-family: inherit; cursor: pointer; }
+  ul { list-style: none; padding-left: 0; }
+  li { margin-bottom: 0.35rem; font-size: var(--fs-small); line-height: var(--lh-body); padding-left: 1.1rem; position: relative; }
+  li::before { content: "\2014"; position: absolute; left: 0; color: var(--t3); font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const weeks = [
+  { label:"Week 1", sub:"Concept", color:"#EEEDFE", border:"#AFA9EC", text:"#3C3489" },
+  { label:"Week 2", sub:"Build",   color:"#FAECE7", border:"#F0997B", text:"#4A1B0C" },
+  { label:"Week 3", sub:"Close",   color:"#E1F5EE", border:"#5DCAA5", text:"#085041" },
+];
+
+const stations = [
+  { n:"01", name:"Ideation",        week:"Week 1",   lead:"Shared",    ai:"Generates briefs, themes, mechanic candidates from constraints",   human:"Selects and refines the concept",            color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { n:"02", name:"Spec definition", week:"Week 1",   lead:"Shared",    ai:"Drafts feature doc and scope from template",                       human:"Reviews, locks scope",                       color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { n:"03", name:"Concept design",  week:"Week 1",   lead:"Designer",  ai:"Generates moodboards, wireframes, component map",                  human:"Art direction and UX decisions",             color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { n:"G1", name:"Design committee",week:"Week 1",   lead:"Committee", ai:null, human:"Design committee reviews the concept - visual direction, UX, and game design - before production begins.", color:"#FFF8E1", border:"#E0C15B", tc:"#6B5900", isGate:true },
+  { n:"04", name:"Asset creation",  week:"Week 1-2", lead:"Designer",  ai:"Batch export pipeline, naming conventions, sprite sheets",         human:"Creates and approves final art",             color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { n:"05", name:"Code spec",       week:"Week 2",   lead:"Developer", ai:"Translates design doc into technical spec and task breakdown",      human:"Steer and verify system integrity",           color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+  { n:"06", name:"Coding",          week:"Week 2",   lead:"Developer", ai:"Builds scaffold and mechanics from spec (coding agent)",           human:"Reviews output, steers loop feel",           color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+  { n:"07", name:"Entity authoring", week:"Week 2",  lead:"Developer", ai:"Generates entity prefabs, component configs, and behaviour wiring from manifest", human:"Reviews structure, validates entity integrity", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+  { n:"08", name:"Level design",    week:"Week 3",   lead:"Shared",    ai:"Generates level layouts, difficulty curves, and progression from manifest", human:"Playtests, tunes pacing, approves final level set", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+  { n:"09", name:"Analytics",       week:"Week 3",   lead:"Developer", ai:"Generates event tagging from schema template",                     human:"Validates funnel and event logic",           color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+  { n:"10", name:"QA",              week:"Week 3",   lead:"Developer", ai:"Automated test runs, edge case sweeps, bug triage",                human:"Signs off on quality gate",                  color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+];
+
+const phases = [
+  { n:"Phase 1", title:"Build the foundation", duration:"Weeks 1-4, parallel tracks", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489",
+    items:["AgentGames assembly created, manifest schema defined","Flow, Tutorial, Scoring systems wrapped with adapters","Design: ideation and asset pipeline agents configured","Spec template locked - used on the first game immediately"],
+    why:"Foundation investment. Architecture and tooling built in parallel so neither track blocks the other - both are ready for week 5." },
+  { n:"Phase 2", title:"Build and ship the first agent game", duration:"Weeks 5-8", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
+    items:["Week 5-6: concept, spec, and design assets - all agent-assisted","Week 6-7: coding agent builds from manifest; devs review and steer","Week 7-8: analytics, human QA, and manual verification","Week 8: first game ships"],
+    why:"Proof of concept at full speed. Human QA holds the quality gate - automated QA agents come next, once the pipeline has proven itself." },
+  { n:"Phase 3", title:"Full throughput", duration:"Weeks 9+", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041",
+    items:["QA agents introduced - automated test runs and regression sweeps","Weekly cadence established: one game in, one game out","Pipeline tuned from lessons learned on the first shipped game","Legacy titles remain stable - no migration, no regression risk"],
+    why:"Full throughput. The team shifts from building games to directing them - more titles, same headcount, quality gate stays human." },
+];
+
+const pioneerNote = "This is not an established playbook. Fully agentic game production - where AI authors logic, levels, and specs and humans steer and verify - is frontier territory. We will learn as we build, adapt the pipeline to what works, and publish what we discover. Some of the answers do not exist yet.";
+
+const roles = [
+  { role:"Designer",
+    before:["Creates concepts, moodboards, and visual references manually","Produces all sprites, animations, and UI assets from scratch","Participates in game definition and level design","Asset naming and wiring done by hand per game"],
+    after:["Art-directs AI-generated concepts and moodboards","Approves and refines agent-produced asset batches","Animates and authors final assets - prefab authoring stays human","Focuses on visual quality and creative direction over production volume"],
+    color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { role:"Developer",
+    before:["Builds systems and mechanics from scratch each game","Creates entity prefabs and wires behaviours manually","Authors game flow and levels in custom editors","Manual analytics tagging and scriptable object wiring"],
+    after:["Steers coding agents on systems, mechanics, and behaviours","Reviews agent-authored levels and flow logic","Owns architecture, entity structure, and system integrity","Co-leads ideation and game definition alongside designers"],
+    color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+];
+
+const risks = [
+  { risk:"Game feel cannot be specified", detail:"A coding agent working from a manifest will produce code that is locally correct but globally wrong. It satisfies the spec but misses the feel entirely.", mitigation:"Every build gets played by a developer within 24 hours. Feel feedback goes back into steering immediately.", severity:"high" },
+  { risk:"The 3-week chain is fragile", detail:"One blocked game breaks the entire staggered pipeline simultaneously. There is no slack in a weekly cadence.", mitigation:"Define a clear slip protocol before the pipeline starts. A game that cannot ship on time gets held - not rushed.", severity:"high" },
+  { risk:"External review cycles are pipeline killers", detail:"KSV reviews, design meetings, metrics sign-offs are not optional - but a single late approval collapses the week it was supposed to ship.", mitigation:"External review gates must be scheduled as fixed pipeline events. Feedback requiring re-ideation triggers a formal pipeline reset.", severity:"high" },
+  { risk:"Agent output drift over time", detail:"Two runs of the same spec can produce structurally different code. Similar mechanics get implemented differently across titles.", mitigation:"Establish a code review standard from game one. Patterns that work get documented and fed back into agent context.", severity:"med" },
+  { risk:"Agent gets stuck and nobody knows why", detail:"The agent produces something broken. Three hours later more time has been spent prompting than it would have taken to write the code.", mitigation:"Hard escalation rule: after two failed steering attempts, the developer takes over directly.", severity:"med" },
+];
+
+const designShifts = [
+  { area:"Concept ideation", before:"Mood references gathered manually, themes debated in open meetings, mechanic ideas sketched by hand", after:"Designer provides a constraint brief. Agent generates 3-5 full pitch decks. Designer selects and refines.", gain:"1hr meeting → 20min selection", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { area:"Visual concept",   before:"Designers produce moodboards, wireframes, and component maps from scratch. Multiple revision rounds.", after:"Agent generates moodboards, wireframes, and component map from the approved pitch. Designer art-directs.", gain:"Days of exploration → hours of direction", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { area:"Asset creation",   before:"Each game requires a full new asset set. Sprites, UI, audio sourced individually. Naming inconsistent.", after:"Agent runs batch pipeline from visual spec - generates variants, exports at correct sizes, applies naming conventions.", gain:"Full asset sets in hours, not days", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { area:"Spec handoff",     before:"Specs were functional but often incomplete - enough for an experienced team to fill the gaps.", after:"Manifest format requires every detail explicit upfront. Specs become the most complete they have ever been.", gain:"Good enough → complete", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+];
+
+const sevMap = {
+  high: { bg:"#FCEBEB", br:"#F09595", tc:"#791F1F", label:"High" },
+  med:  { bg:"#FAEEDA", br:"#EF9F27", tc:"#633806", label:"Med"  }
+};
+
+function Badge({ color, border, tc, children }) {
+  return <div style={{ background:color, border:"0.5px solid "+border, borderRadius:6, padding:"2px 8px", fontSize:"var(--fs-label)", fontWeight:500, color:tc, display:"inline-block" }}>{children}</div>;
+}
+function SlideHeader({ title, subtitle }) {
+  return (
+    <div>
+      <h2 style={{ fontSize:"var(--fs-h2)", fontWeight:"var(--fw-heading)", color:"var(--t1)", lineHeight:1.2, letterSpacing:"-0.01em" }}>{title}</h2>
+      {subtitle && <p style={{ marginTop:"0.45rem", fontSize:"var(--fs-body)", color:"var(--t2)", lineHeight:"var(--lh-body)", fontWeight:"var(--fw-body)", maxWidth:680 }}>{subtitle}</p>}
+    </div>
+  );
+}
+function SectionLabel({ children }) {
+  return <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:"0.6rem" }}>{children}</div>;
+}
+function CardBox({ children, style }) {
+  return <div style={{ background:"var(--bg1)", border:"0.5px solid var(--b3)", borderRadius:10, padding:"var(--pad-card)", ...style }}>{children}</div>;
+}
+function Note({ children, accent }) {
+  var base = { background: accent ? "linear-gradient(90deg, " + accent + "08, var(--bg2))" : "var(--bg2)", borderRadius:8, padding:"0.85rem 1.25rem", fontSize:13, color:"var(--t2)", lineHeight:"var(--lh-body)" };
+  if (accent) { base.borderLeft = "3px solid " + accent; base.borderTopLeftRadius = 0; base.borderBottomLeftRadius = 0; }
+  return <div style={base}>{children}</div>;
+}
+function VideoWithFallback({ src, label, borderColor }) {
+  var [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div style={{ width:"100%", borderRadius:8, border:"0.5px solid " + borderColor, background:"var(--bg2)", display:"flex", alignItems:"center", justifyContent:"center", aspectRatio:"16/9", flexDirection:"column", gap:8 }}>
+        <div style={{ fontSize:28, opacity:0.3 }}>&#9654;</div>
+        <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)" }}>{label}</div>
+        <div style={{ fontSize:"var(--fs-label)", color:"var(--t3)", opacity:0.6 }}>Video unavailable</div>
+      </div>
+    );
+  }
+  return <video src={src} autoPlay muted loop playsInline onError={function() { setFailed(true); }} style={{ width:"100%", borderRadius:8, border:"0.5px solid " + borderColor }} />;
+}
+
+/* ── Slides ── */
+
+function SlideVision() {
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <div>
+        <div style={{ fontSize:"var(--fs-label)", fontWeight:500, letterSpacing:"0.08em", color:"var(--t3)", textTransform:"uppercase", marginBottom:"0.6rem" }}>Korro Studio</div>
+        <h1 style={{ fontSize:"var(--fs-hero)", fontWeight:700, lineHeight:1.1, color:"var(--t1)", letterSpacing:"-0.02em" }}>One game. Every week.</h1>
+      </div>
+      <p style={{ fontSize:"var(--fs-body-lg)", color:"var(--t2)", maxWidth:520, lineHeight:"var(--lh-body)" }}>We are restructuring the studio around an agentic pipeline - a system where AI handles the repeatable work at every station, and our team focuses on creative direction, quality, and decisions that require human judgment.</p>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"var(--gap-card)", maxWidth:420 }}>
+        {[["3","designers"],["3","developers"],["1","game / week"]].map(function(item) {
+          return (
+            <div key={item[1]} style={{ background:"var(--bg2)", borderRadius:8, padding:"0.85rem 1rem" }}>
+              <div style={{ fontSize:"var(--fs-stat)", fontWeight:500, color:"var(--t1)", lineHeight:1 }}>{item[0]}</div>
+              <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", marginTop:4 }}>{item[1]}</div>
+            </div>
+          );
+        })}
+      </div>
+      <p style={{ fontSize:"var(--fs-small)", color:"var(--t3)", maxWidth:520 }}>A 3-week cycle per game. At any moment, three games are in flight simultaneously - one in concept, one in build, one in QA. Each week, one ships.</p>
+    </div>
+  );
+}
+
+function SlidePipeline() {
+  var games = ["Game A","Game B","Game C"];
+  var cells = [[0,1,2],[null,0,1],[null,null,0]];
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="The parallel pipeline" subtitle="Three games always in flight - staggered by one week each." />
+      <div style={{ display:"grid", gridTemplateColumns:"72px repeat(3,1fr)", gap:4 }}>
+        <div/>
+        {weeks.map(function(w) {
+          return (
+            <div key={w.label} style={{ textAlign:"center", padding:"8px 4px", background:"var(--bg2)", borderRadius:6 }}>
+              <div style={{ fontSize:"var(--fs-small)", fontWeight:500, color:"var(--t1)" }}>{w.label}</div>
+              <div style={{ fontSize:"var(--fs-label)", color:"var(--t2)" }}>{w.sub}</div>
+            </div>
+          );
+        })}
+        {games.map(function(g, gi) {
+          return [
+            <div key={g+"_l"} style={{ display:"flex", alignItems:"center", fontSize:"var(--fs-small)", color:"var(--t2)", paddingRight:8 }}>{g}</div>,
+            cells[gi].map(function(wi, ci) {
+              if (wi !== null) {
+                return (
+                  <div key={g+"_"+ci} style={{ background:weeks[wi].color, border:"0.5px solid "+weeks[wi].border, borderRadius:6, padding:"10px", minHeight:52, position:"relative" }}>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:weeks[wi].text }}>{weeks[wi].sub}</div>
+                    <div style={{ fontSize:"var(--fs-label)", color:weeks[wi].text, opacity:0.7, marginTop:3, lineHeight:"var(--lh-tight)" }}>
+                      {wi===0?"Ideation to assets":wi===1?"Spec to code to analytics":"Level design + QA + deploy"}
+                    </div>
+                    {wi===2 && <div style={{ position:"absolute", top:6, right:6, fontSize:10, fontWeight:600, color:weeks[wi].text, background:"rgba(255,255,255,0.6)", borderRadius:4, padding:"1px 5px", letterSpacing:"0.04em", textTransform:"uppercase" }}>Ships</div>}
+                  </div>
+                );
+              }
+              return <div key={g+"_"+ci} style={{ borderRadius:6, minHeight:52 }}/>;
+            })
+          ];
+        })}
+      </div>
+      <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+        {[["#EEEDFE","#AFA9EC","#3C3489","Designer-led"],["#FAECE7","#F0997B","#4A1B0C","Shared handoff"],["#E1F5EE","#5DCAA5","#085041","Dev + QA"]].map(function(item) {
+          return (
+            <div key={item[3]} style={{ display:"flex", alignItems:"center", gap:6, fontSize:"var(--fs-small)", color:"var(--t2)" }}>
+              <div style={{ width:10, height:10, borderRadius:2, background:item[0], border:"0.5px solid "+item[1] }}/>
+              {item[3]}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SlideStations() {
+  var [active, setActive] = useState(0);
+  var s = stations[active];
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="The 10 stations" subtitle="Every game passes through the same sequence. Each station has a clear owner, a defined AI role, and a human decision gate. An approval gate pauses the pipeline for external review." />
+      <div style={{ display:"flex", gap:6, alignItems:"center", flexWrap:"wrap" }}>
+        {stations.map(function(st, i) {
+          var isActive = active === i;
+          var isGate = st.isGate;
+          var pillStyle = isGate
+            ? { background:isActive?st.color:"transparent", border:"1.5px dashed "+(isActive?st.border:"#D4C84A"), borderRadius:6, padding:isActive?"4px 12px":"4px 10px", fontSize:"var(--fs-small)", fontWeight:isActive?500:400, color:isActive?st.tc:"#9E8E00", cursor:"pointer", transition:"all 0.15s", display:"flex", alignItems:"center", gap:6 }
+            : { background:isActive?st.color:"var(--bg2)", border:"0.5px solid "+(isActive?st.border:"var(--b3)"), borderRadius:6, padding:isActive?"4px 12px":"4px 10px", fontSize:"var(--fs-small)", fontWeight:isActive?500:400, color:isActive?st.tc:"var(--t3)", cursor:"pointer", transition:"all 0.15s", display:"flex", alignItems:"center", gap:6 };
+          return [
+            <div key={"s"+i}
+              onClick={function() { setActive(i); }}
+              onMouseEnter={function(e) { if (!isActive) e.currentTarget.style.background = st.color; }}
+              onMouseLeave={function(e) { if (!isActive) e.currentTarget.style.background = isGate?"transparent":"var(--bg2)"; }}
+              style={pillStyle}>
+              {isGate && <span style={{ fontSize:12 }}>{"\u25C6"}</span>}
+              <span style={{ fontVariantNumeric:"tabular-nums" }}>{isGate ? "" : st.n}</span>
+              {isActive && <span>{st.name}</span>}
+              {!isActive && isGate && <span style={{ fontSize:"var(--fs-label)" }}>Gate</span>}
+            </div>,
+            i < stations.length - 1 ? <div key={"a"+i} style={{ color:"var(--b2)", fontSize:10 }}>{"\u2192"}</div> : null
+          ];
+        })}
+      </div>
+      {s.isGate ? (
+        <div key={active} className="slide-enter" style={{ background:"#FFFDF0", border:"1.5px dashed "+s.border, borderRadius:12, padding:"1.3rem 1.5rem" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:"0.7rem" }}>
+            <Badge color={s.color} border={s.border} tc={s.tc}>{s.week}</Badge>
+            <div style={{ background:"rgba(224,193,91,0.15)", borderRadius:6, padding:"2px 8px", fontSize:"var(--fs-label)", fontWeight:500, color:s.tc }}>Approval gate</div>
+          </div>
+          <div style={{ fontSize:18, fontWeight:600, color:"var(--t1)", letterSpacing:"-0.01em", marginBottom:"0.6rem" }}>{"\u25C6"} {s.name}</div>
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)", maxWidth:600 }}>{s.human}</div>
+          <div style={{ marginTop:"0.75rem", fontSize:"var(--fs-label)", color:s.tc, fontStyle:"italic" }}>Pipeline pauses here until this gate is cleared. No AI role at this step.</div>
+        </div>
+      ) : (
+        <div key={active} className="slide-enter" style={{ background:"var(--bg1)", border:"0.5px solid "+s.border, borderRadius:12, padding:"1.3rem 1.5rem", display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1.5rem" }}>
+          <div>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:"0.7rem" }}>
+              <Badge color={s.color} border={s.border} tc={s.tc}>{s.week}</Badge>
+              <div style={{ background:"var(--bg2)", borderRadius:6, padding:"2px 8px", fontSize:"var(--fs-label)", color:"var(--t2)" }}>Lead: {s.lead}</div>
+            </div>
+            <div style={{ fontSize:18, fontWeight:600, color:"var(--t1)", letterSpacing:"-0.01em" }}>{s.n} — {s.name}</div>
+          </div>
+          <div style={{ display:"flex", flexDirection:"column", gap:"0.7rem" }}>
+            <div>
+              <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>AI handles</div>
+              <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{s.ai}</div>
+            </div>
+            <div>
+              <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Human handles</div>
+              <div style={{ fontSize:"var(--fs-small)", color:"var(--t1)", lineHeight:"var(--lh-body)", fontWeight:500 }}>{s.human}</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SlideRoles() {
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="How roles change" subtitle="Less execution. More direction. The creative judgment stays human." />
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {roles.map(function(r, i) {
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?r.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <Badge color={r.color} border={r.border} tc={r.tc}>{r.role}</Badge>
+                <div style={{ flex:1, fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>
+                  {r.role === "Designer" ? "From production to creative direction" : "From building to steering and reviewing"}
+                </div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1rem", marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Before</div>
+                    <ul style={{ color:"var(--t3)" }}>{r.before.map(function(b, j) { return <li key={j}>{b}</li>; })}</ul>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:r.tc, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>After</div>
+                    <ul style={{ color:r.tc }}>{r.after.map(function(a, j) { return <li key={j} style={{ fontWeight:500 }}>{a}</li>; })}</ul>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <Note>What stays constant: a continuous design-dev sync runs through every station - not just at handoff. Agents execute, but humans steer, review, and decide at every step. The pipeline is agentic. The control is not.</Note>
+      <Note accent="#AFA9EC"><span style={{ fontWeight:500, color:"#3C3489" }}>Note on AI adoption: </span>Both designers and developers already use AI tools today. The shift is not about adopting AI - it is about moving from individual tools to orchestrating agents as part of a structured, shared pipeline.</Note>
+    </div>
+  );
+}
+
+function SlideDesign() {
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="The design workflow shift" subtitle="Every design station changes. The craft stays - the manual overhead does not." />
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {designShifts.map(function(s, i) {
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?s.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <Badge color={s.color} border={s.border} tc={s.tc}>{s.area}</Badge>
+                <div style={{ flex:1, fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>{s.gain}</div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1rem", marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Today</div>
+                    <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)", lineHeight:"var(--lh-body)" }}>{s.before}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Agentic</div>
+                    <div style={{ fontSize:"var(--fs-small)", color:"#3C3489", lineHeight:"var(--lh-body)", fontWeight:500 }}>{s.after}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <Note>Creative direction replaces production volume. The craft stays - the manual overhead does not.</Note>
+    </div>
+  );
+}
+
+function SlideGameDirection() {
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="A shift in game direction" subtitle="The move to agentic production and the move to 2D are the same decision." />
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"var(--gap-card)" }}>
+        <div style={{ background:"var(--bg2)", borderRadius:10, padding:"var(--pad-card)", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+          <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em" }}>Previously - 3D first</div>
+          <VideoWithFallback src="https://www.dropbox.com/scl/fi/jepgojjwf0a4aoir00d6w/Screen-Recording-2026-04-07-at-0.40.48.mov?rlkey=62jonxe6su4raoxuepgpjvv7g&raw=1" label="3D gameplay preview" borderColor="var(--b3)" />
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:1.8 }}>
+            3D models, rigs, and animations per game<br/>Custom shaders and materials<br/>Complex 3D scene composition<br/>High asset production cost per title<br/>Long iteration cycles on look and feel
+          </div>
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)", fontStyle:"italic" }}>Heavy production overhead on every game.</div>
+        </div>
+        <div style={{ background:"#EEEDFE", border:"0.5px solid #AFA9EC", borderRadius:10, padding:"var(--pad-card)", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+          <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em" }}>Going forward - 2D first</div>
+          <VideoWithFallback src="https://www.dropbox.com/scl/fi/5tl77per5m9udr39ldq2t/Screen-Recording-2026-04-07-at-0.42.28.mov?rlkey=f4lvje6b6ufcfdrmw8cv7b342&raw=1" label="2D gameplay preview" borderColor="#AFA9EC" />
+          <div style={{ fontSize:"var(--fs-small)", color:"#3C3489", lineHeight:1.8 }}>
+            Sprites, rigs, and 2D animations - faster to produce and iterate<br/>Flat and illustrated visual language - already where our design is heading<br/>Agent-friendly asset pipeline - batch generation works naturally in 2D<br/>Lower per-game production cost, higher output velocity<br/>3D not abandoned - used selectively where it genuinely adds value
+          </div>
+          <div style={{ fontSize:"var(--fs-small)", color:"#534AB7", fontStyle:"italic" }}>Production speed and visual direction aligned.</div>
+        </div>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"var(--gap-card)" }}>
+        {[
+          { title:"Why 2D and agents fit", body:"2D assets - sprites, UI, backgrounds - are what generative pipelines handle best today. The agent-friendly workflow and the 2D direction reinforce each other." },
+          { title:"Visual design already there", body:"The shift in visual language has been happening organically. The agentic pipeline formalises and accelerates a direction the studio was already moving toward." },
+          { title:"3D where it earns its place", body:"3D is not off the table. Games where depth, perspective, or physicality genuinely serve the experience can still go there - it becomes a deliberate choice, not the default." },
+        ].map(function(c, i) {
+          return (
+            <CardBox key={i}>
+              <div style={{ fontSize:"var(--fs-small)", fontWeight:500, color:"var(--t1)", marginBottom:"0.4rem" }}>{c.title}</div>
+              <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{c.body}</div>
+            </CardBox>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SlideArchitecture() {
+  var archCards = [
+    { title:"Agents handle",  items:["Game manifests and level authoring","All adapter and integration code","Mechanics, analytics, and flow specs","Scriptable asset generation"] },
+    { title:"Team handles",   items:["Steering agents and reviewing output","Prefab construction and asset authoring","System integrity and architecture","Design quality and creative direction"] },
+    { title:"The hard rule",  items:["Zero inspector cross-references in AgentGames","If it needs dragging in Unity, it is wrong","Config is code, not prefab data"] },
+  ];
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="Code architecture implications" subtitle="A new layer lives alongside the existing codebase - not replacing it." />
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"var(--gap-card)" }}>
+        <div style={{ background:"var(--bg2)", borderRadius:10, padding:"var(--pad-card)" }}>
+          <SectionLabel>Legacy (unchanged)</SectionLabel>
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:1.8 }}>
+            15 existing games<br/>Inspector-wired prefabs<br/>Blackboard key containers<br/>Custom editors and tools<br/>All existing shared systems
+          </div>
+          <div style={{ marginTop:"0.65rem", fontSize:"var(--fs-small)", color:"var(--t3)", fontStyle:"italic" }}>Nothing breaks. No migration required.</div>
+        </div>
+        <div style={{ background:"#EEEDFE", border:"0.5px solid #AFA9EC", borderRadius:10, padding:"var(--pad-card)" }}>
+          <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:"0.6rem" }}>AgentGames (new)</div>
+          <div style={{ fontSize:"var(--fs-small)", color:"#3C3489", lineHeight:1.8 }}>
+            Separate assembly - hard boundary<br/>Games defined in YAML manifests<br/>Assets loaded by address key<br/>No inspector references anywhere<br/>Shared systems wrapped via adapters
+          </div>
+          <div style={{ marginTop:"0.65rem", fontSize:"var(--fs-small)", color:"#534AB7", fontStyle:"italic" }}>All new games built here.</div>
+        </div>
+      </div>
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {archCards.map(function(c, i) {
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?"var(--b2)":"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <div style={{ fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)", flex:1 }}>{c.title}</div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <ul>{c.items.map(function(item, j) { return <li key={j}>{item}</li>; })}</ul>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <Note accent="#F09595">
+        <span style={{ fontWeight:500, color:"#791F1F" }}>Asset pipeline overhaul: </span>The current asset pipeline needs to be reworked to better manage on-device runtime memory. This is not limited to new games - it will have implications for existing systems and legacy titles. Unlike the AgentGames layer, which sits alongside the old codebase without touching it, the asset pipeline change cuts across both old and new. This needs to be scoped and planned as a separate workstream with its own risk assessment.
+      </Note>
+    </div>
+  );
+}
+
+function SlideTransition() {
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="Transition plan" subtitle="Three phases. First agent-built game ships at week 8." />
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {phases.map(function(p, i) {
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?p.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <Badge color={p.color} border={p.border} tc={p.tc}>{p.n}</Badge>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>{p.title}</div>
+                  <div style={{ fontSize:"var(--fs-label)", color:"var(--t3)", marginTop:2 }}>{p.duration}</div>
+                </div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1rem", marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Milestones</div>
+                    <ul>{p.items.map(function(item, j) { return <li key={j}>{item}</li>; })}</ul>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Why this sequence</div>
+                    <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)", fontStyle:"italic" }}>{p.why}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <Note accent="#7F77DD">
+        <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>A note on uncertainty</div>
+        {pioneerNote}
+      </Note>
+    </div>
+  );
+}
+
+function SlideRisks() {
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="Risks and mitigations" subtitle="Known failure modes, called out early." />
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {risks.map(function(r, i) {
+          var s = sevMap[r.severity];
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid " + (isOpen ? s.br : "var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <div style={{ background:s.bg, border:"0.5px solid "+s.br, borderRadius:6, padding:"2px 8px", fontSize:"var(--fs-label)", fontWeight:500, color:s.tc, whiteSpace:"nowrap", flexShrink:0 }}>{s.label}</div>
+                <div style={{ fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)", flex:1 }}>{r.risk}</div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1rem", marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Detail</div>
+                    <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{r.detail}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Mitigation</div>
+                    <div style={{ fontSize:"var(--fs-small)", color:"var(--t1)", lineHeight:"var(--lh-body)", fontWeight:400 }}>{r.mitigation}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SlideStart() {
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="Where we start" subtitle="The pipeline does not require the full team. We split - half continues existing work, half builds the future." />
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"var(--gap-card)" }}>
+        <div style={{ background:"var(--bg2)", borderRadius:10, padding:"var(--pad-card)" }}>
+          <SectionLabel>Half the team - continuity</SectionLabel>
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:1.8 }}>
+            Redesign of existing games - new visual layer across the library<br/>Bug fixes and stability on live titles<br/>Ongoing app development and feature support
+          </div>
+          <div style={{ marginTop:"0.65rem", fontSize:"var(--fs-small)", color:"var(--t3)", fontStyle:"italic" }}>Business keeps running. No disruption to current commitments.</div>
+        </div>
+        <div style={{ background:"#EEEDFE", border:"0.5px solid #AFA9EC", borderRadius:10, padding:"var(--pad-card)" }}>
+          <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:"0.6rem" }}>Half the team - pipeline</div>
+          <div style={{ fontSize:"var(--fs-small)", color:"#3C3489", lineHeight:1.8 }}>
+            AgentGames assembly and manifest schema<br/>Flow, Tutorial, Scoring system adapters<br/>Ideation and asset pipeline agents configured<br/>First agent-built game in production by week 8
+          </div>
+          <div style={{ marginTop:"0.65rem", fontSize:"var(--fs-small)", color:"#534AB7", fontStyle:"italic" }}>Foundation built. First game ships. Cadence established.</div>
+        </div>
+      </div>
+      <CardBox>
+        <div style={{ fontSize:"var(--fs-small)", fontWeight:500, color:"var(--t1)", marginBottom:"0.6rem" }}>Timeline from day one</div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8 }}>
+          {[
+            { when:"Day 1", what:"Kickoff - split decided, first game selected, spec template locked", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+            { when:"Weeks 1-4", what:"Phase 1 - AgentGames layer built, adapters written, agents configured", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+            { when:"Weeks 5-8", what:"Phase 2 - First game built and shipped end-to-end through the new pipeline", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+            { when:"Week 9+", what:"Phase 3 - Full cadence, QA agents in, one game per week", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+          ].map(function(item, i) {
+            return (
+              <div key={i} style={{ background:item.color, border:"0.5px solid "+item.border, borderRadius:8, padding:"0.65rem" }}>
+                <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:item.tc, marginBottom:4 }}>{item.when}</div>
+                <div style={{ fontSize:"var(--fs-small)", color:item.tc, opacity:0.8, lineHeight:"var(--lh-body)" }}>{item.what}</div>
+              </div>
+            );
+          })}
+        </div>
+      </CardBox>
+      <Note>The redesign work and the pipeline work are not in conflict - they run in parallel and both move the studio forward. By week 8 the redesigns are progressing and the first new-generation game is live.</Note>
+    </div>
+  );
+}
+
+var slideComponents = [SlideVision, SlideStations, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart];
+var slideLabels = ["Vision","Stations","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step"];
+
+function NavButton({ onClick, disabled, children }) {
+  var [hovered, setHovered] = useState(false);
+  return (
+    <button onClick={onClick} disabled={disabled}
+      onMouseEnter={function() { setHovered(true); }}
+      onMouseLeave={function() { setHovered(false); }}
+      style={{ fontSize:"var(--fs-small)", padding:"6px 18px", borderRadius:6, opacity:disabled?0.35:1, background:hovered&&!disabled?"var(--bg2)":"transparent", border:"0.5px solid var(--b2)", color:"var(--t2)", cursor:disabled?"not-allowed":"pointer", transition:"background 0.15s" }}>
+      {children}
+    </button>
+  );
+}
+
+function App() {
+  var [current, setCurrent] = useState(0);
+  var SlideContent = slideComponents[current];
+
+  useEffect(function() {
+    function handleKey(e) {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); setCurrent(function(c) { return Math.min(slideLabels.length - 1, c + 1); }); }
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); setCurrent(function(c) { return Math.max(0, c - 1); }); }
+    }
+    window.addEventListener("keydown", handleKey);
+    return function() { window.removeEventListener("keydown", handleKey); };
+  }, []);
+
+  return (
+    <div style={{ display:"flex", flexDirection:"column", height:"100vh", minHeight:600 }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0.65rem 1.5rem 0.65rem 2rem", borderBottom:"0.5px solid var(--b3)", flexShrink:0 }}>
+        <div style={{ fontSize:"var(--fs-body)", fontWeight:600, color:"var(--t1)", letterSpacing:"-0.01em" }}>Korro</div>
+        <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", fontWeight:400 }}>{slideLabels[current]}</div>
+        <div style={{ fontSize:"var(--fs-label)", color:"var(--t3)", fontVariantNumeric:"tabular-nums" }}>{current+1} / {slideLabels.length}</div>
+      </div>
+      <div style={{ flex:1, padding:"var(--pad-slide)", overflow:"auto", display:"flex", alignItems:"safe center" }}>
+        <div className="slide-container slide-enter" key={current} style={{ width:"100%" }}>
+          <SlideContent/>
+        </div>
+      </div>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"0.65rem 1.5rem", borderTop:"0.5px solid var(--b3)", flexShrink:0 }}>
+        <NavButton onClick={function() { setCurrent(Math.max(0, current - 1)); }} disabled={current === 0}>Previous</NavButton>
+        <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+          {slideLabels.map(function(label, i) {
+            return <div key={i} title={label} onClick={function() { setCurrent(i); }}
+              onMouseEnter={function(e) { if (i !== current) { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1.3)"; } }}
+              onMouseLeave={function(e) { if (i !== current) { e.currentTarget.style.opacity = "0.7"; e.currentTarget.style.transform = "scale(1)"; } }}
+              style={{ width:i===current?22:7, height:7, borderRadius:4, background:i===current?"var(--t1)":"var(--b2)", cursor:"pointer", transition:"width 0.2s, background 0.2s, opacity 0.15s, transform 0.15s", opacity:i===current?1:0.7 }}/>;
+          })}
+        </div>
+        <NavButton onClick={function() { setCurrent(Math.min(slideLabels.length - 1, current + 1)); }} disabled={current === slideLabels.length - 1}>Next</NavButton>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

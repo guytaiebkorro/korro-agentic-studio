@@ -540,44 +540,94 @@ function SlideRisks() {
 }
 
 function SlideStart() {
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  var teamSplits = [
+    { title:"Continuity", summary:"Business keeps running. No disruption.", color:"var(--bg2)", border:"var(--b3)", labelColor:"var(--t3)", tc:"var(--t2)",
+      details:["Redesign of existing games - new visual layer across the library","Bug fixes and stability on live titles","Ongoing app development and feature support"] },
+    { title:"Pipeline", summary:"Foundation built. First game ships.", color:"#EEEDFE", border:"#AFA9EC", labelColor:"#534AB7", tc:"#3C3489",
+      details:["AgentGames assembly and manifest schema","Flow, Tutorial, Scoring system adapters","Ideation and asset pipeline agents configured","First agent-built game in production by week 8"] },
+  ];
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
       <SlideHeader title="Where we start" subtitle="The pipeline does not require the full team. We split - half continues existing work, half builds the future." />
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"var(--gap-card)" }}>
-        <div style={{ background:"var(--bg2)", borderRadius:10, padding:"var(--pad-card)" }}>
-          <SectionLabel>Half the team - continuity</SectionLabel>
-          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:1.8 }}>
-            Redesign of existing games - new visual layer across the library<br/>Bug fixes and stability on live titles<br/>Ongoing app development and feature support
-          </div>
-          <div style={{ marginTop:"0.65rem", fontSize:"var(--fs-small)", color:"var(--t3)", fontStyle:"italic" }}>Business keeps running. No disruption to current commitments.</div>
-        </div>
-        <div style={{ background:"#EEEDFE", border:"0.5px solid #AFA9EC", borderRadius:10, padding:"var(--pad-card)" }}>
-          <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"#534AB7", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:"0.6rem" }}>Half the team - pipeline</div>
-          <div style={{ fontSize:"var(--fs-small)", color:"#3C3489", lineHeight:1.8 }}>
-            AgentGames assembly and manifest schema<br/>Flow, Tutorial, Scoring system adapters<br/>Ideation and asset pipeline agents configured<br/>First agent-built game in production by week 8
-          </div>
-          <div style={{ marginTop:"0.65rem", fontSize:"var(--fs-small)", color:"#534AB7", fontStyle:"italic" }}>Foundation built. First game ships. Cadence established.</div>
-        </div>
-      </div>
-      <CardBox>
-        <div style={{ fontSize:"var(--fs-small)", fontWeight:500, color:"var(--t1)", marginBottom:"0.6rem" }}>Timeline from day one</div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8 }}>
-          {[
-            { when:"Day 1", what:"Kickoff - split decided, first game selected, spec template locked", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
-            { when:"Weeks 1-4", what:"Phase 1 - AgentGames layer built, adapters written, agents configured", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
-            { when:"Weeks 5-8", what:"Phase 2 - First game built and shipped end-to-end through the new pipeline", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
-            { when:"Week 9+", what:"Phase 3 - Full cadence, QA agents in, one game per week", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
-          ].map(function(item, i) {
-            return (
-              <div key={i} style={{ background:item.color, border:"0.5px solid "+item.border, borderRadius:8, padding:"0.65rem" }}>
-                <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:item.tc, marginBottom:4 }}>{item.when}</div>
-                <div style={{ fontSize:"var(--fs-small)", color:item.tc, opacity:0.8, lineHeight:"var(--lh-body)" }}>{item.what}</div>
+        {teamSplits.map(function(s, i) {
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:s.color, border:"0.5px solid "+(isOpen?s.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <div style={{ flex:1 }}>
+                  <SectionLabel>{("Half the team - "+s.title)}</SectionLabel>
+                  <div style={{ fontSize:"var(--fs-small)", color:s.labelColor, fontStyle:"italic" }}>{s.summary}</div>
+                </div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
               </div>
-            );
-          })}
-        </div>
-      </CardBox>
+              {isOpen && (
+                <div className="slide-enter" style={{ marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <div style={{ fontSize:"var(--fs-small)", color:s.tc, lineHeight:1.8 }}>
+                    {s.details.map(function(d, j) { return <div key={j}>{d}</div>; })}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8 }}>
+        {[
+          { when:"Day 1", what:"Kickoff - split decided, first game selected, spec template locked", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+          { when:"Weeks 1-4", what:"AgentGames layer built, adapters written, agents configured", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+          { when:"Weeks 5-8", what:"First game built and shipped through the new pipeline", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+          { when:"Week 9+", what:"Full cadence, QA agents in, one game per week", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+        ].map(function(item, i) {
+          return (
+            <div key={i} style={{ background:item.color, border:"0.5px solid "+item.border, borderRadius:8, padding:"0.65rem" }}>
+              <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:item.tc, marginBottom:4 }}>{item.when}</div>
+              <div style={{ fontSize:"var(--fs-small)", color:item.tc, opacity:0.8, lineHeight:"var(--lh-body)" }}>{item.what}</div>
+            </div>
+          );
+        })}
+      </div>
       <Note>The redesign work and the pipeline work are not in conflict - they run in parallel and both move the studio forward. By week 8 the redesigns are progressing and the first new-generation game is live.</Note>
+    </div>
+  );
+}
+
+function SlideAsk() {
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  var asks = [
+    { area:"Time", headline:"Allocate the studio time to launch this initiative", color:"#EEEDFE", border:"#AFA9EC", tc:"#534AB7",
+      body:"Launching the pipeline requires focused time across the team. This is an investment - the payoff compounds with every game built on the new system." },
+    { area:"Germany", headline:"Collaboration with the Germany tech team", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041",
+      body:"The Germany team has deep expertise in agent skills and agentic workflows. Their support during weeks 1-4 will raise the quality of the foundation and shorten the time to a working pipeline." },
+    { area:"Structure", headline:"Split the studio into Games and Meta teams", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
+      body:"The Games team leverages the new pipeline to build titles. The Meta team owns the apps that wrap and use those games. To run both in parallel, the Meta team needs one additional developer and one additional designer dedicated to it." },
+  ];
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="The ask" subtitle="Three things to unlock this initiative and set it up to succeed." />
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {asks.map(function(a, i) {
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?a.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <Badge color={a.color} border={a.border} tc={a.tc}>{a.area}</Badge>
+                <div style={{ flex:1, fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>{a.headline}</div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{a.body}</div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <Note>With these in place, the studio can run both tracks in parallel - keep shipping today, while building the foundation that changes what the studio can ship tomorrow.</Note>
     </div>
   );
 }
@@ -604,8 +654,8 @@ function SlideCredits() {
   );
 }
 
-var slideComponents = [SlideVision, SlideStations, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart, SlideCredits];
-var slideLabels = ["Vision","Stations","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step","Credits"];
+var slideComponents = [SlideVision, SlideStations, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart, SlideAsk, SlideCredits];
+var slideLabels = ["Vision","Stations","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step","The ask","Credits"];
 
 function NavButton({ onClick, disabled, children }) {
   var [hovered, setHovered] = useState(false);

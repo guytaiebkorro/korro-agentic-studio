@@ -39,33 +39,88 @@ const { useState, useEffect } = React;
 const weeks = [
   { label:"Week 1", sub:"Concept", color:"#EEEDFE", border:"#AFA9EC", text:"#3C3489" },
   { label:"Week 2", sub:"Build",   color:"#FAECE7", border:"#F0997B", text:"#4A1B0C" },
-  { label:"Week 3", sub:"Close",   color:"#E1F5EE", border:"#5DCAA5", text:"#085041" },
+  { label:"Week 3", sub:"Build + Levels", color:"#FAECE7", border:"#F0997B", text:"#4A1B0C" },
+  { label:"Week 4", sub:"QA + Fixes", color:"#E1F5EE", border:"#5DCAA5", text:"#085041" },
 ];
 
 const stations = [
-  { n:"01", name:"Ideation",        week:"Week 1",   lead:"Shared",    ai:"Generates briefs, themes, mechanic candidates from constraints",   human:"Selects and refines the concept",            color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
-  { n:"02", name:"Spec definition", week:"Week 1",   lead:"Shared",    ai:"Drafts feature doc and scope from template",                       human:"Reviews, locks scope",                       color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
-  { n:"03", name:"Concept design",  week:"Week 1",   lead:"Designer",  ai:"Generates moodboards, wireframes, component map",                  human:"Art direction and UX decisions",             color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { name:"KSV input", week:"Feed", lead:"External", ai:null, human:"KSV delivers the source material - real-world content, pedagogical goals, target audience - that seeds the pipeline. Not a station we own, but everything downstream depends on this input.", color:"#FFF1D6", border:"#E0A84C", tc:"#6B4A0A", isFeed:true },
+  { n:"01", name:"Korrofication",   week:"Week 1",   lead:"Shared",    ai:"Generates game concepts that korrofy the KSV input - adapting real-world content into our mechanics, narrative, and tone", human:"Selects and refines the concept, ensures it is both faithful to source and fits the Korro brand",
+    examplePrompt:"Given the KSV input on early mammals, generate three game concepts that fit our mechanics library and narrative style.",
+    exampleSkills:"Korro narrative style, mechanics catalog lookup, pedagogical framing",
+    exampleOutput:"Three short pitch briefs with theme, core loop, tone reference, and pedagogical hook",
+    color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { n:"02", name:"Spec definition", week:"Week 1",   lead:"Shared",    ai:"Drafts feature doc and scope from template",                       human:"Reviews, locks scope",
+    examplePrompt:"Turn the approved pitch into a complete feature spec using the Korro template.",
+    exampleSkills:"Spec template authoring, scope reasoning, dependency identification",
+    exampleOutput:"Completed spec doc with feature list, scope, dependencies, and open questions",
+    color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { n:"03", name:"Concept design",  week:"Week 1",   lead:"Designer",  ai:"Generates moodboards, wireframes, component map",                  human:"Art direction and UX decisions",
+    examplePrompt:"Produce moodboard, wireframes, and component map for the spec - 2D visual direction.",
+    exampleSkills:"Visual reference generation, UI component mapping, layout generation",
+    exampleOutput:"Moodboard images, wireframes, and a component manifest",
+    color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
   { n:"G1", name:"Design committee",week:"Week 1",   lead:"Committee", ai:null, human:"Design committee reviews the concept - visual direction, UX, and game design - before production begins.", color:"#FFF8E1", border:"#E0C15B", tc:"#6B5900", isGate:true },
-  { n:"04", name:"Asset creation",  week:"Week 1-2", lead:"Designer",  ai:"Batch export pipeline, naming conventions, sprite sheets",         human:"Creates and approves final art",             color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
-  { n:"05", name:"Code spec",       week:"Week 2",   lead:"Developer", ai:"Translates design doc into technical spec and task breakdown",      human:"Steer and verify system integrity",           color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
-  { n:"06", name:"Coding",          week:"Week 2",   lead:"Developer", ai:"Builds scaffold and mechanics from spec (coding agent)",           human:"Reviews output, steers loop feel",           color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
-  { n:"07", name:"Entity authoring", week:"Week 2",  lead:"Developer", ai:"Generates entity prefabs, component configs, and behaviour wiring from manifest", human:"Reviews structure, validates entity integrity", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
-  { n:"08", name:"Level design",    week:"Week 3",   lead:"Shared",    ai:"Generates level layouts, difficulty curves, and progression from manifest", human:"Playtests, tunes pacing, approves final level set", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
-  { n:"09", name:"Analytics",       week:"Week 3",   lead:"Developer", ai:"Generates event tagging from schema template",                     human:"Validates funnel and event logic",           color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
-  { n:"10", name:"QA",              week:"Week 3",   lead:"Developer", ai:"Automated test runs, edge case sweeps, bug triage",                human:"Signs off on quality gate",                  color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+  { n:"04", name:"Asset creation",  week:"Week 1-2", lead:"Designer",  ai:"Batch export pipeline, naming conventions, sprite sheets",         human:"Creates and approves final art",
+    examplePrompt:"Generate the sprite set and UI assets per the approved component map.",
+    exampleSkills:"Batch asset generation, naming conventions, variant expansion",
+    exampleOutput:"Organised asset folder with named sprites, UI elements, and export variants",
+    color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+  { n:"05", name:"Code spec",       week:"Week 2",   lead:"Developer", ai:"Translates design doc into technical spec and task breakdown",      human:"Steer and verify system integrity",
+    examplePrompt:"Turn the feature spec into a technical implementation plan and break it into Jira tickets.",
+    exampleSkills:"Code architecture reasoning, ticket breakdown, dependency mapping",
+    exampleOutput:"Technical spec plus a list of Jira tickets with acceptance criteria",
+    color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+  { n:"06", name:"Coding",          week:"Week 2",   lead:"Developer", ai:"Builds scaffold and mechanics from spec (coding agent)",           human:"Reviews output, steers loop feel",
+    examplePrompt:"Implement the mechanics and systems described in the technical spec.",
+    exampleSkills:"AgentGames assembly patterns, Unity C#, adapter usage",
+    exampleOutput:"Working code scaffolds, mechanics, and system integrations",
+    color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+  { n:"07", name:"Entity authoring", week:"Week 2",  lead:"Developer", ai:"Generates entity prefabs, component configs, and behaviour wiring from manifest", human:"Reviews structure, validates entity integrity",
+    examplePrompt:"Generate entity manifests and their runtime configuration from the game spec.",
+    exampleSkills:"Manifest authoring, entity composition, component wiring",
+    exampleOutput:"YAML entity manifests and associated runtime configs",
+    color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+  { n:"08", name:"Level design",    week:"Week 3",   lead:"Shared",    ai:"Generates level layouts, difficulty curves, and progression from manifest", human:"Playtests, tunes pacing, approves final level set",
+    examplePrompt:"Produce a progression of 20 levels with the specified difficulty curve and pacing.",
+    exampleSkills:"Level generation, difficulty tuning, progression design",
+    exampleOutput:"20 level manifests with metadata tagging difficulty and pacing",
+    color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+  { n:"09", name:"Analytics",       week:"Week 3",   lead:"Developer", ai:"Generates event tagging from schema template",                     human:"Validates funnel and event logic",
+    examplePrompt:"Instrument the game with the standard Korro analytics schema and game-specific events.",
+    exampleSkills:"Analytics schema authoring, event instrumentation, funnel reasoning",
+    exampleOutput:"Event tagging integrated into game code plus a funnel reference doc",
+    color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+  { n:"G2", name:"KSV metrics & analytics review", week:"Week 3", lead:"KSV", ai:null, human:"KSV review of metrics, analytics, and pedagogical tracking - ensures the game measures what it needs to measure before it goes into QA.", color:"#FFF8E1", border:"#E0C15B", tc:"#6B5900", isGate:true },
+  { n:"10", name:"QA",              week:"Week 4",   lead:"Developer", ai:"Light automation - smoke tests and regression sweeps",             human:"Mostly human - playtesting, edge cases, and sign-off on the final build",
+    examplePrompt:"Run the standard smoke test suite and flag anything failing.",
+    exampleSkills:"Automated test harness, regression sweeps, bug triage",
+    exampleOutput:"Automated test report; all deep QA and sign-off is done by humans",
+    color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+  { n:"G3", name:"Assessment", week:"Week 4", lead:"KSV", ai:null, human:"Final assessment by KSV - pedagogical, quality, and readiness review. The last approval before a game is deployed.", color:"#FFF8E1", border:"#E0C15B", tc:"#6B5900", isGate:true },
+  { n:"11", name:"Deployment",      week:"Week 4",   lead:"Developer", ai:"Build, packaging, and release automation",                         human:"Approves the release, monitors rollout",
+    examplePrompt:"Build, sign, and stage the game for release on the Korro platform.",
+    exampleSkills:"Build automation, packaging, release pipeline operation",
+    exampleOutput:"A staged release ready for rollout, with build metadata and release notes",
+    color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
 ];
 
 const phases = [
-  { n:"Phase 1", title:"Build the foundation", duration:"Weeks 1-4, parallel tracks", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489",
-    items:["AgentGames assembly created, manifest schema defined","Flow, Tutorial, Scoring systems wrapped with adapters","Design: ideation and asset pipeline agents configured","Spec template locked - used on the first game immediately"],
-    why:"Foundation investment. Architecture and tooling built in parallel so neither track blocks the other - both are ready for week 5." },
-  { n:"Phase 2", title:"Build and ship the first agent game", duration:"Weeks 5-8", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
-    items:["Week 5-6: concept, spec, and design assets - all agent-assisted","Week 6-7: coding agent builds from manifest; devs review and steer","Week 7-8: analytics, human QA, and manual verification","Week 8: first game ships"],
-    why:"Proof of concept at full speed. Human QA holds the quality gate - automated QA agents come next, once the pipeline has proven itself." },
-  { n:"Phase 3", title:"Full throughput", duration:"Weeks 9+", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041",
-    items:["QA agents introduced - automated test runs and regression sweeps","Weekly cadence established: one game in, one game out","Pipeline tuned from lessons learned on the first shipped game","Legacy titles remain stable - no migration, no regression risk"],
-    why:"Full throughput. The team shifts from building games to directing them - more titles, same headcount, quality gate stays human." },
+  { n:"Phase 1", title:"Build the agents and systems", duration:"Weeks 1-4", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489",
+    items:["AgentGames assembly created, manifest schema defined","Flow, Tutorial, Scoring systems wrapped with adapters","First agents configured: Ideation, Spec, Concept Design, Asset, Code Spec, Jira","Spec template locked and ready for use on the first game"],
+    why:"Foundation first. The agents and the systems they drive have to exist before any game can be built through them." },
+  { n:"Phase 2", title:"Create the first game", duration:"Weeks 5-8", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
+    items:["First game run end-to-end through the new pipeline","Every station exercised with real content for the first time","Gaps and rough edges in agents and systems documented","Game ready by week 8"],
+    why:"The first game is the real test. It surfaces what the system actually does and does not handle - lessons no amount of planning would have revealed." },
+  { n:"Phase 3", title:"Second iteration of the systems", duration:"Weeks 9-12", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489",
+    items:["Fix the gaps and rough edges surfaced by the first game","Tighten agent prompts, skills, and outputs based on real usage","Stabilise the adapters and manifest schema","Harden the handoffs between stations"],
+    why:"Iterate on what you now know. The first game gives honest feedback - the systems get their second pass with real evidence behind every change." },
+  { n:"Phase 4", title:"Create the second game", duration:"Weeks 13-16", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
+    items:["Second game run through the improved pipeline","Validate that the fixes held and the improvements compound","Surface whatever the second round of edge cases reveals","Game ready by week 16"],
+    why:"One game is a proof of concept, two is a pattern. The second game is where the pipeline earns the right to scale." },
+  { n:"Phase 5", title:"Stabilize and move into full production", duration:"Weeks 17+", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041",
+    items:["Final stabilisation of agents, systems, and pipeline","Weekly cadence established - one game in, one game out","QA automation introduced alongside human QA","Full production mode with the rest of the studio onboarded"],
+    why:"Full throughput. The pipeline is now trusted - the team shifts from building the system to running games through it at cadence." },
 ];
 
 const pioneerNote = "This is not an established playbook. Fully agentic game production - where AI authors logic, levels, and specs and humans steer and verify - is frontier territory. We will learn as we build, adapt the pipeline to what works, and publish what we discover. Some of the answers do not exist yet.";
@@ -164,11 +219,17 @@ function SlideVision() {
 
 function SlidePipeline() {
   var games = ["Game A","Game B","Game C"];
-  var cells = [[0,1,2],[null,0,1],[null,null,0]];
+  var cells = [[0,1,2,3],[null,0,1,2],[null,null,0,1]];
+  var cellDescs = [
+    "Korrofication, spec, concept design",
+    "Asset creation, code spec, coding",
+    "Coding wrap-up, level design, analytics",
+    "QA + bug fixes",
+  ];
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
-      <SlideHeader title="The parallel pipeline" subtitle="Three games always in flight - staggered by one week each." />
-      <div style={{ display:"grid", gridTemplateColumns:"72px repeat(3,1fr)", gap:4 }}>
+      <SlideHeader title="The parallel pipeline" subtitle="Three games always in flight - staggered by one week each. Each game runs four weeks end-to-end." />
+      <div style={{ display:"grid", gridTemplateColumns:"72px repeat(4,1fr)", gap:4 }}>
         <div/>
         {weeks.map(function(w) {
           return (
@@ -187,9 +248,9 @@ function SlidePipeline() {
                   <div key={g+"_"+ci} style={{ background:weeks[wi].color, border:"0.5px solid "+weeks[wi].border, borderRadius:6, padding:"10px", minHeight:52, position:"relative" }}>
                     <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:weeks[wi].text }}>{weeks[wi].sub}</div>
                     <div style={{ fontSize:"var(--fs-label)", color:weeks[wi].text, opacity:0.7, marginTop:3, lineHeight:"var(--lh-tight)" }}>
-                      {wi===0?"Ideation to assets":wi===1?"Spec to code to analytics":"Level design + QA + deploy"}
+                      {cellDescs[wi]}
                     </div>
-                    {wi===2 && <div style={{ position:"absolute", top:6, right:6, fontSize:10, fontWeight:600, color:weeks[wi].text, background:"rgba(255,255,255,0.6)", borderRadius:4, padding:"1px 5px", letterSpacing:"0.04em", textTransform:"uppercase" }}>Ships</div>}
+                    {wi===3 && <div style={{ position:"absolute", top:6, right:6, fontSize:10, fontWeight:600, color:weeks[wi].text, background:"rgba(255,255,255,0.6)", borderRadius:4, padding:"1px 5px", letterSpacing:"0.04em", textTransform:"uppercase" }}>Ready</div>}
                   </div>
                 );
               }
@@ -199,7 +260,7 @@ function SlidePipeline() {
         })}
       </div>
       <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
-        {[["#EEEDFE","#AFA9EC","#3C3489","Designer-led"],["#FAECE7","#F0997B","#4A1B0C","Shared handoff"],["#E1F5EE","#5DCAA5","#085041","Dev + QA"]].map(function(item) {
+        {[["#EEEDFE","#AFA9EC","#3C3489","Concept"],["#FAECE7","#F0997B","#4A1B0C","Build + Levels"],["#E1F5EE","#5DCAA5","#085041","QA + Ready"]].map(function(item) {
           return (
             <div key={item[3]} style={{ display:"flex", alignItems:"center", gap:6, fontSize:"var(--fs-small)", color:"var(--t2)" }}>
               <div style={{ width:10, height:10, borderRadius:2, background:item[0], border:"0.5px solid "+item[1] }}/>
@@ -214,63 +275,173 @@ function SlidePipeline() {
 
 function SlideStations() {
   var [active, setActive] = useState(0);
+  var [exampleOpen, setExampleOpen] = useState(false);
   var s = stations[active];
+  useEffect(function() { setExampleOpen(false); }, [active]);
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
-      <SlideHeader title="The 10 stations" subtitle="Every game passes through the same sequence. Each station has a clear owner, a defined AI role, and a human decision gate. An approval gate pauses the pipeline for external review." />
+      <SlideHeader title="The pipeline stations" subtitle="Every game passes through the same sequence. Each station has a clear owner and a defined AI role. Gates pause the pipeline for external review. The feed before station 01 is KSV input - the source we adapt." />
       <div style={{ display:"flex", gap:6, alignItems:"center", flexWrap:"wrap" }}>
         {stations.map(function(st, i) {
           var isActive = active === i;
           var isGate = st.isGate;
-          var pillStyle = isGate
-            ? { background:isActive?st.color:"transparent", border:"1.5px dashed "+(isActive?st.border:"#D4C84A"), borderRadius:6, padding:isActive?"4px 12px":"4px 10px", fontSize:"var(--fs-small)", fontWeight:isActive?500:400, color:isActive?st.tc:"#9E8E00", cursor:"pointer", transition:"all 0.15s", display:"flex", alignItems:"center", gap:6 }
-            : { background:isActive?st.color:"var(--bg2)", border:"0.5px solid "+(isActive?st.border:"var(--b3)"), borderRadius:6, padding:isActive?"4px 12px":"4px 10px", fontSize:"var(--fs-small)", fontWeight:isActive?500:400, color:isActive?st.tc:"var(--t3)", cursor:"pointer", transition:"all 0.15s", display:"flex", alignItems:"center", gap:6 };
+          var isFeed = st.isFeed;
+          var pillStyle;
+          if (isFeed) {
+            pillStyle = { background:isActive?st.color:"rgba(255,241,214,0.5)", border:"1.5px dotted "+(isActive?st.border:"#C99A3D"), borderRadius:6, padding:isActive?"4px 12px":"4px 10px", fontSize:"var(--fs-small)", fontWeight:isActive?500:400, color:isActive?st.tc:"#6B4A0A", cursor:"pointer", transition:"all 0.15s", display:"flex", alignItems:"center", gap:6 };
+          } else if (isGate) {
+            pillStyle = { background:isActive?st.color:"transparent", border:"1.5px dashed "+(isActive?st.border:"#D4C84A"), borderRadius:6, padding:isActive?"4px 12px":"4px 10px", fontSize:"var(--fs-small)", fontWeight:isActive?500:400, color:isActive?st.tc:"#9E8E00", cursor:"pointer", transition:"all 0.15s", display:"flex", alignItems:"center", gap:6 };
+          } else {
+            pillStyle = { background:isActive?st.color:"var(--bg2)", border:"0.5px solid "+(isActive?st.border:"var(--b3)"), borderRadius:6, padding:isActive?"4px 12px":"4px 10px", fontSize:"var(--fs-small)", fontWeight:isActive?500:400, color:isActive?st.tc:"var(--t3)", cursor:"pointer", transition:"all 0.15s", display:"flex", alignItems:"center", gap:6 };
+          }
           return [
             <div key={"s"+i}
               onClick={function() { setActive(i); }}
               onMouseEnter={function(e) { if (!isActive) e.currentTarget.style.background = st.color; }}
-              onMouseLeave={function(e) { if (!isActive) e.currentTarget.style.background = isGate?"transparent":"var(--bg2)"; }}
+              onMouseLeave={function(e) { if (!isActive) e.currentTarget.style.background = isFeed?"rgba(255,241,214,0.5)":(isGate?"transparent":"var(--bg2)"); }}
               style={pillStyle}>
+              {isFeed && <span style={{ fontSize:12 }}>{"\u25B6"}</span>}
               {isGate && <span style={{ fontSize:12 }}>{"\u25C6"}</span>}
-              <span style={{ fontVariantNumeric:"tabular-nums" }}>{isGate ? "" : st.n}</span>
+              {!isGate && !isFeed && <span style={{ fontVariantNumeric:"tabular-nums" }}>{st.n}</span>}
               {isActive && <span>{st.name}</span>}
               {!isActive && isGate && <span style={{ fontSize:"var(--fs-label)" }}>Gate</span>}
+              {!isActive && isFeed && <span style={{ fontSize:"var(--fs-label)" }}>Feed</span>}
             </div>,
             i < stations.length - 1 ? <div key={"a"+i} style={{ color:"var(--b2)", fontSize:10 }}>{"\u2192"}</div> : null
           ];
         })}
       </div>
-      {s.isGate ? (
+      {s.isFeed ? (
+        <div key={active} className="slide-enter" style={{ background:"#FFF9EC", border:"1.5px dotted "+s.border, borderRadius:12, padding:"1.3rem 1.5rem" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:"0.7rem" }}>
+            <Badge color={s.color} border={s.border} tc={s.tc}>{s.week}</Badge>
+            <div style={{ background:"rgba(224,168,76,0.18)", borderRadius:6, padding:"2px 8px", fontSize:"var(--fs-label)", fontWeight:500, color:s.tc }}>Input feed</div>
+          </div>
+          <div style={{ fontSize:18, fontWeight:600, color:"var(--t1)", letterSpacing:"-0.01em", marginBottom:"0.6rem" }}>{"\u25B6"} {s.name}</div>
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)", maxWidth:700 }}>{s.human}</div>
+          <div style={{ marginTop:"0.75rem", fontSize:"var(--fs-label)", color:s.tc, fontStyle:"italic" }}>This is not a station we own - it is the source material we adapt.</div>
+        </div>
+      ) : s.isGate ? (
         <div key={active} className="slide-enter" style={{ background:"#FFFDF0", border:"1.5px dashed "+s.border, borderRadius:12, padding:"1.3rem 1.5rem" }}>
           <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:"0.7rem" }}>
             <Badge color={s.color} border={s.border} tc={s.tc}>{s.week}</Badge>
             <div style={{ background:"rgba(224,193,91,0.15)", borderRadius:6, padding:"2px 8px", fontSize:"var(--fs-label)", fontWeight:500, color:s.tc }}>Approval gate</div>
           </div>
           <div style={{ fontSize:18, fontWeight:600, color:"var(--t1)", letterSpacing:"-0.01em", marginBottom:"0.6rem" }}>{"\u25C6"} {s.name}</div>
-          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)", maxWidth:600 }}>{s.human}</div>
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)", maxWidth:700 }}>{s.human}</div>
           <div style={{ marginTop:"0.75rem", fontSize:"var(--fs-label)", color:s.tc, fontStyle:"italic" }}>Pipeline pauses here until this gate is cleared. No AI role at this step.</div>
         </div>
       ) : (
-        <div key={active} className="slide-enter" style={{ background:"var(--bg1)", border:"0.5px solid "+s.border, borderRadius:12, padding:"1.3rem 1.5rem", display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1.5rem" }}>
-          <div>
-            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:"0.7rem" }}>
-              <Badge color={s.color} border={s.border} tc={s.tc}>{s.week}</Badge>
-              <div style={{ background:"var(--bg2)", borderRadius:6, padding:"2px 8px", fontSize:"var(--fs-label)", color:"var(--t2)" }}>Lead: {s.lead}</div>
-            </div>
-            <div style={{ fontSize:18, fontWeight:600, color:"var(--t1)", letterSpacing:"-0.01em" }}>{s.n} — {s.name}</div>
-          </div>
-          <div style={{ display:"flex", flexDirection:"column", gap:"0.7rem" }}>
+        <div key={active} className="slide-enter" style={{ background:"var(--bg1)", border:"0.5px solid "+s.border, borderRadius:12, padding:"1.3rem 1.5rem" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1.5rem" }}>
             <div>
-              <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>AI handles</div>
-              <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{s.ai}</div>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:"0.7rem" }}>
+                <Badge color={s.color} border={s.border} tc={s.tc}>{s.week}</Badge>
+                <div style={{ background:"var(--bg2)", borderRadius:6, padding:"2px 8px", fontSize:"var(--fs-label)", color:"var(--t2)" }}>Lead: {s.lead}</div>
+              </div>
+              <div style={{ fontSize:18, fontWeight:600, color:"var(--t1)", letterSpacing:"-0.01em" }}>{s.n} — {s.name}</div>
             </div>
-            <div>
-              <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Human handles</div>
-              <div style={{ fontSize:"var(--fs-small)", color:"var(--t1)", lineHeight:"var(--lh-body)", fontWeight:500 }}>{s.human}</div>
+            <div style={{ display:"flex", flexDirection:"column", gap:"0.7rem" }}>
+              <div>
+                <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>AI handles</div>
+                <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{s.ai}</div>
+              </div>
+              <div>
+                <div style={{ fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4 }}>Human handles</div>
+                <div style={{ fontSize:"var(--fs-small)", color:"var(--t1)", lineHeight:"var(--lh-body)", fontWeight:500 }}>{s.human}</div>
+              </div>
             </div>
           </div>
+          {s.examplePrompt && (
+            <div style={{ marginTop:"1rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+              <div onClick={function() { setExampleOpen(function(v) { return !v; }); }} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:8, fontSize:"var(--fs-label)", fontWeight:500, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.06em" }}>
+                <span>Example</span>
+                <span style={{ fontSize:10, transition:"transform 0.2s", transform:exampleOpen?"rotate(180deg)":"rotate(0deg)" }}>▾</span>
+              </div>
+              {exampleOpen && (
+                <div className="slide-enter" style={{ marginTop:"0.6rem", display:"grid", gridTemplateColumns:"100px 1fr", rowGap:"0.45rem", columnGap:"0.75rem", fontSize:"var(--fs-small)" }}>
+                  <div style={{ color:"var(--t3)", fontStyle:"italic" }}>Prompt</div>
+                  <div style={{ color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{s.examplePrompt}</div>
+                  <div style={{ color:"var(--t3)", fontStyle:"italic" }}>Skills</div>
+                  <div style={{ color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{s.exampleSkills}</div>
+                  <div style={{ color:"var(--t3)", fontStyle:"italic" }}>Output</div>
+                  <div style={{ color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{s.exampleOutput}</div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
+    </div>
+  );
+}
+
+function SlideFirstAgents() {
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  var agents = [
+    { name:"Ideation agent", summary:"Korrofies KSV input into Korro-style game concepts",
+      prompt:"Given the KSV input and our mechanics catalog, generate three game concepts that adapt the source into Korro mechanics and narrative.",
+      skills:"Korro narrative style, mechanics catalog lookup, pedagogical framing, pitch writing",
+      output:"Three short pitch briefs with theme, core loop, tone reference, and pedagogical hook",
+      color:"#EEEDFE", border:"#AFA9EC", tc:"#534AB7" },
+    { name:"Definition & Specs agent", summary:"Turns the approved concept into a complete feature spec",
+      prompt:"Take the approved pitch and produce a full feature spec using the Korro template.",
+      skills:"Spec template authoring, scope reasoning, dependency identification",
+      output:"Completed feature spec with scope, features, dependencies, and open questions",
+      color:"#EEEDFE", border:"#AFA9EC", tc:"#534AB7" },
+    { name:"Jira ticket agent", summary:"Breaks the spec into Jira tickets with clear acceptance criteria",
+      prompt:"Break down the approved feature spec into Jira tickets with acceptance criteria and estimated effort.",
+      skills:"Ticket decomposition, acceptance-criteria authoring, dependency mapping",
+      output:"A list of Jira tickets linked to the spec, each with acceptance criteria",
+      color:"#EEEDFE", border:"#AFA9EC", tc:"#534AB7" },
+    { name:"Concept design agent", summary:"Generates moodboards, wireframes, and component maps",
+      prompt:"Produce a visual concept pack for the spec: moodboard, wireframes, and component map.",
+      skills:"Visual reference generation, UI component mapping, layout generation",
+      output:"Moodboard, wireframes, and a component manifest for the game",
+      color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+    { name:"Asset creation agent", summary:"Batch-generates sprites, UI, and audio from the visual spec",
+      prompt:"From the approved component map, generate the sprite set, UI assets, and variants.",
+      skills:"Batch asset generation, naming conventions, variant expansion",
+      output:"Organised asset folder with named sprites, UI, and export variants",
+      color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+    { name:"Code spec agent", summary:"Translates the design doc into a technical implementation spec",
+      prompt:"Convert the feature spec into a technical implementation plan for AgentGames.",
+      skills:"Code architecture reasoning, adapter usage, dependency mapping",
+      output:"Technical spec with modules, adapters, data flow, and open technical questions",
+      color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+  ];
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="The first agents" subtitle="These are the agents we build first. Each has a clear purpose, a defined skill set, and a predictable output." />
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {agents.map(function(a, i) {
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?a.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <Badge color={a.color} border={a.border} tc={a.tc}>Agent</Badge>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>{a.name}</div>
+                  <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)", marginTop:2 }}>{a.summary}</div>
+                </div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)", display:"grid", gridTemplateColumns:"100px 1fr", rowGap:"0.5rem", columnGap:"0.85rem", fontSize:"var(--fs-small)" }}>
+                  <div style={{ color:"var(--t3)", fontStyle:"italic" }}>Prompt</div>
+                  <div style={{ color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{a.prompt}</div>
+                  <div style={{ color:"var(--t3)", fontStyle:"italic" }}>Skills</div>
+                  <div style={{ color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{a.skills}</div>
+                  <div style={{ color:"var(--t3)", fontStyle:"italic" }}>Output</div>
+                  <div style={{ color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{a.output}</div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <Note>Everything else comes later. These six agents are enough to run a full game through the pipeline end-to-end.</Note>
     </div>
   );
 }
@@ -464,7 +635,7 @@ function SlideTransition() {
   function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
-      <SlideHeader title="Transition plan" subtitle="Three phases. First agent-built game ships at week 8." />
+      <SlideHeader title="Transition plan" subtitle="Five phases from foundation to full production." />
       <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
         {phases.map(function(p, i) {
           var isOpen = expanded === i;
@@ -654,8 +825,8 @@ function SlideCredits() {
   );
 }
 
-var slideComponents = [SlideVision, SlideStations, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart, SlideAsk, SlideCredits];
-var slideLabels = ["Vision","Stations","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step","The ask","Credits"];
+var slideComponents = [SlideVision, SlideStations, SlideFirstAgents, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart, SlideAsk, SlideCredits];
+var slideLabels = ["Vision","Stations","First agents","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step","The ask","Credits"];
 
 function NavButton({ onClick, disabled, children }) {
   var [hovered, setHovered] = useState(false);

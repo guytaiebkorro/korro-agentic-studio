@@ -50,7 +50,7 @@ const stations = [
     exampleSkills:"Korro narrative style, mechanics catalog lookup, pedagogical framing",
     exampleOutput:"Three short pitch briefs with theme, core loop, tone reference, and pedagogical hook",
     color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
-  { n:"02", name:"Spec definition", week:"Week 1",   lead:"Shared",    ai:"Drafts feature doc and scope from template",                       human:"Reviews, locks scope",
+  { n:"02", name:"Spec definition", week:"Week 1",   lead:"Product",   ai:"Drafts feature doc and scope from template",                       human:"Product owns this station - reviews the draft, locks scope, and is responsible for the spec",
     examplePrompt:"Turn the approved pitch into a complete feature spec using the Korro template.",
     exampleSkills:"Spec template authoring, scope reasoning, dependency identification",
     exampleOutput:"Completed spec doc with feature list, scope, dependencies, and open questions",
@@ -76,33 +76,30 @@ const stations = [
     exampleSkills:"AgentGames assembly patterns, Unity C#, adapter usage",
     exampleOutput:"Working code scaffolds, mechanics, and system integrations",
     color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
-  { n:"07", name:"Entity authoring", week:"Week 2",  lead:"Developer", ai:"Generates entity prefabs, component configs, and behaviour wiring from manifest", human:"Reviews structure, validates entity integrity",
-    examplePrompt:"Generate entity manifests and their runtime configuration from the game spec.",
-    exampleSkills:"Manifest authoring, entity composition, component wiring",
-    exampleOutput:"YAML entity manifests and associated runtime configs",
+  { n:"07", name:"Entity authoring", week:"Week 2",  lead:"Developer", ai:"Scaffolds entity manifests and base component configs from the spec",
+    human:"Heavy lifting - wiring game objects, positioning elements in the scene, fine-tuning behaviour. The hands-on work an agent struggles with stays with the developer.",
+    examplePrompt:"Scaffold entity manifests and starting component configs from the game spec.",
+    exampleSkills:"Manifest scaffolding, entity composition, baseline component configuration",
+    exampleOutput:"Starting entity manifests - developer takes over for the scene wiring and positioning work",
     color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
   { n:"08", name:"Level design",    week:"Week 3",   lead:"Shared",    ai:"Generates level layouts, difficulty curves, and progression from manifest", human:"Playtests, tunes pacing, approves final level set",
     examplePrompt:"Produce a progression of 20 levels with the specified difficulty curve and pacing.",
     exampleSkills:"Level generation, difficulty tuning, progression design",
     exampleOutput:"20 level manifests with metadata tagging difficulty and pacing",
     color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
-  { n:"09", name:"Analytics",       week:"Week 3",   lead:"Developer", ai:"Generates event tagging from schema template",                     human:"Validates funnel and event logic",
-    examplePrompt:"Instrument the game with the standard Korro analytics schema and game-specific events.",
-    exampleSkills:"Analytics schema authoring, event instrumentation, funnel reasoning",
-    exampleOutput:"Event tagging integrated into game code plus a funnel reference doc",
+  { n:"G2", name:"KSV metrics & analytics review", week:"Week 3", lead:"KSV", ai:null, human:"KSV reviews the metrics and analytics plan - ensures the game is set up to measure what matters before implementation begins.", color:"#FFF8E1", border:"#E0C15B", tc:"#6B5900", isGate:true },
+  { n:"09", name:"Analytics",       week:"Week 3",   lead:"Developer", ai:"Wires the event tagging into the codebase once the schema is defined",
+    human:"Heavy lifting - defining the metrics, events, and funnel that matter for this game. What to measure is a human decision; the agent only helps hook it up.",
+    examplePrompt:"Given the approved analytics schema, instrument the game code with the defined events.",
+    exampleSkills:"Event instrumentation, code wiring, schema adherence",
+    exampleOutput:"Event tagging integrated into game code - the schema itself is human-authored",
     color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
-  { n:"G2", name:"KSV metrics & analytics review", week:"Week 3", lead:"KSV", ai:null, human:"KSV review of metrics, analytics, and pedagogical tracking - ensures the game measures what it needs to measure before it goes into QA.", color:"#FFF8E1", border:"#E0C15B", tc:"#6B5900", isGate:true },
   { n:"10", name:"QA",              week:"Week 4",   lead:"Developer", ai:"Light automation - smoke tests and regression sweeps",             human:"Mostly human - playtesting, edge cases, and sign-off on the final build",
     examplePrompt:"Run the standard smoke test suite and flag anything failing.",
     exampleSkills:"Automated test harness, regression sweeps, bug triage",
     exampleOutput:"Automated test report; all deep QA and sign-off is done by humans",
     color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
-  { n:"G3", name:"Assessment", week:"Week 4", lead:"KSV", ai:null, human:"Final assessment by KSV - pedagogical, quality, and readiness review. The last approval before a game is deployed.", color:"#FFF8E1", border:"#E0C15B", tc:"#6B5900", isGate:true },
-  { n:"11", name:"Deployment",      week:"Week 4",   lead:"Developer", ai:"Build, packaging, and release automation",                         human:"Approves the release, monitors rollout",
-    examplePrompt:"Build, sign, and stage the game for release on the Korro platform.",
-    exampleSkills:"Build automation, packaging, release pipeline operation",
-    exampleOutput:"A staged release ready for rollout, with build metadata and release notes",
-    color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+  { n:"G3", name:"Games committee", week:"Week 4", lead:"Committee", ai:null, human:"Games committee final review - quality, pedagogical fit, and readiness. The last approval before a game is released.", color:"#FFF8E1", border:"#E0C15B", tc:"#6B5900", isGate:true },
 ];
 
 const phases = [
@@ -115,9 +112,9 @@ const phases = [
   { n:"Phase 3", title:"Second iteration of the systems", duration:"Weeks 9-12", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489",
     items:["Fix the gaps and rough edges surfaced by the first game","Tighten agent prompts, skills, and outputs based on real usage","Stabilise the adapters and manifest schema","Harden the handoffs between stations"],
     why:"Iterate on what you now know. The first game gives honest feedback - the systems get their second pass with real evidence behind every change." },
-  { n:"Phase 4", title:"Create the second game", duration:"Weeks 13-16", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
-    items:["Second game run through the improved pipeline","Validate that the fixes held and the improvements compound","Surface whatever the second round of edge cases reveals","Game ready by week 16"],
-    why:"One game is a proof of concept, two is a pattern. The second game is where the pipeline earns the right to scale." },
+  { n:"Phase 4", title:"Create two games in parallel", duration:"Weeks 13-16", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
+    items:["Two games run through the improved pipeline at the same time","Lessons from phase 2 applied at every station","First real test that the pipeline scales beyond a single game in flight","Both games ready by week 16"],
+    why:"One game is a proof of concept, two in parallel is the real test of throughput. This is where the pipeline earns the right to scale." },
   { n:"Phase 5", title:"Stabilize and move into full production", duration:"Weeks 17+", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041",
     items:["Final stabilisation of agents, systems, and pipeline","Weekly cadence established - one game in, one game out","QA automation introduced alongside human QA","Full production mode with the rest of the studio onboarded"],
     why:"Full throughput. The pipeline is now trusted - the team shifts from building the system to running games through it at cadence." },
@@ -138,8 +135,8 @@ const roles = [
 
 const risks = [
   { risk:"Game feel cannot be specified", detail:"A coding agent working from a manifest will produce code that is locally correct but globally wrong. It satisfies the spec but misses the feel entirely.", mitigation:"Every build gets played by a developer within 24 hours. Feel feedback goes back into steering immediately.", severity:"high" },
-  { risk:"The 3-week chain is fragile", detail:"One blocked game breaks the entire staggered pipeline simultaneously. There is no slack in a weekly cadence.", mitigation:"Define a clear slip protocol before the pipeline starts. A game that cannot ship on time gets held - not rushed.", severity:"high" },
-  { risk:"External review cycles are pipeline killers", detail:"KSV reviews, design meetings, metrics sign-offs are not optional - but a single late approval collapses the week it was supposed to ship.", mitigation:"External review gates must be scheduled as fixed pipeline events. Feedback requiring re-ideation triggers a formal pipeline reset.", severity:"high" },
+  { risk:"The 4-week chain is fragile", detail:"Three games run in parallel, staggered by one week. One blocked game can ripple through the whole pipeline - the weekly cadence leaves little slack.", mitigation:"Define a clear slip protocol before the pipeline starts. A game that cannot be ready on time gets held - not rushed. The stagger means at most one game slips, not all three.", severity:"high" },
+  { risk:"External review cycles are pipeline killers", detail:"Design committee, KSV metrics review, and Games committee sign-off are not optional - but a single late approval can collapse the week it was supposed to ready.", mitigation:"External review gates must be scheduled as fixed pipeline events. Feedback requiring re-ideation triggers a formal pipeline reset, not an in-flight rescue.", severity:"high" },
   { risk:"Agent output drift over time", detail:"Two runs of the same spec can produce structurally different code. Similar mechanics get implemented differently across titles.", mitigation:"Establish a code review standard from game one. Patterns that work get documented and fed back into agent context.", severity:"med" },
   { risk:"Agent gets stuck and nobody knows why", detail:"The agent produces something broken. Three hours later more time has been spent prompting than it would have taken to write the code.", mitigation:"Hard escalation rule: after two failed steering attempts, the developer takes over directly.", severity:"med" },
 ];
@@ -202,8 +199,8 @@ function SlideVision() {
         <h1 style={{ fontSize:"var(--fs-hero)", fontWeight:700, lineHeight:1.1, color:"var(--t1)", letterSpacing:"-0.02em" }}>One game. Every week.</h1>
       </div>
       <p style={{ fontSize:"var(--fs-body-lg)", color:"var(--t2)", maxWidth:520, lineHeight:"var(--lh-body)" }}>We are restructuring the studio around an agentic pipeline - a system where AI handles the repeatable work at every station, and our team focuses on creative direction, quality, and decisions that require human judgment.</p>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"var(--gap-card)", maxWidth:420 }}>
-        {[["3","designers"],["3","developers"],["1","game / week"]].map(function(item) {
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"var(--gap-card)", maxWidth:560 }}>
+        {[["3","designers"],["3","developers"],["1","product"],["1","game / week"]].map(function(item) {
           return (
             <div key={item[1]} style={{ background:"var(--bg2)", borderRadius:8, padding:"0.85rem 1rem" }}>
               <div style={{ fontSize:"var(--fs-stat)", fontWeight:500, color:"var(--t1)", lineHeight:1 }}>{item[0]}</div>
@@ -212,7 +209,7 @@ function SlideVision() {
           );
         })}
       </div>
-      <p style={{ fontSize:"var(--fs-small)", color:"var(--t3)", maxWidth:520 }}>A 3-week cycle per game. At any moment, three games are in flight simultaneously - one in concept, one in build, one in QA. Each week, one ships.</p>
+      <p style={{ fontSize:"var(--fs-small)", color:"var(--t3)", maxWidth:520 }}>A 4-week cycle per game. At any moment, three games are in flight simultaneously, staggered by one week. Each week, one is ready.</p>
     </div>
   );
 }
@@ -714,14 +711,14 @@ function SlideStart() {
   var [expanded, setExpanded] = useState(-1);
   function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
   var teamSplits = [
-    { title:"Continuity", summary:"Business keeps running. No disruption.", color:"var(--bg2)", border:"var(--b3)", labelColor:"var(--t3)", tc:"var(--t2)",
-      details:["Redesign of existing games - new visual layer across the library","Bug fixes and stability on live titles","Ongoing app development and feature support"] },
-    { title:"Pipeline", summary:"Foundation built. First game ships.", color:"#EEEDFE", border:"#AFA9EC", labelColor:"#534AB7", tc:"#3C3489",
-      details:["AgentGames assembly and manifest schema","Flow, Tutorial, Scoring system adapters","Ideation and asset pipeline agents configured","First agent-built game in production by week 8"] },
+    { title:"Current tasks", summary:"The Games team keeps shipping against existing commitments.", color:"var(--bg2)", border:"var(--b3)", labelColor:"var(--t3)", tc:"var(--t2)",
+      details:["Ongoing game development and feature support","Bug fixes and stability on live titles","Delivery of already-committed scope"] },
+    { title:"Agentic studio infrastructure", summary:"The Games team builds the pipeline, with support from the Germany team.", color:"#EEEDFE", border:"#AFA9EC", labelColor:"#534AB7", tc:"#3C3489",
+      details:["AgentGames assembly and manifest schema","Flow, Tutorial, Scoring system adapters","First agents configured: Ideation, Spec, Concept, Asset, Code spec, Jira","Germany team assists on agent skills and agentic workflows","First game run end-to-end through the pipeline by week 8"] },
   ];
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
-      <SlideHeader title="Where we start" subtitle="The pipeline does not require the full team. We split - half continues existing work, half builds the future." />
+      <SlideHeader title="Where we start" subtitle="The Games team runs two tracks in parallel - existing commitments keep moving while the new pipeline is built." />
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"var(--gap-card)" }}>
         {teamSplits.map(function(s, i) {
           var isOpen = expanded === i;
@@ -729,7 +726,7 @@ function SlideStart() {
             <div key={i} onClick={function() { toggle(i); }} style={{ background:s.color, border:"0.5px solid "+(isOpen?s.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
               <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
                 <div style={{ flex:1 }}>
-                  <SectionLabel>{("Half the team - "+s.title)}</SectionLabel>
+                  <SectionLabel>{s.title+" team"}</SectionLabel>
                   <div style={{ fontSize:"var(--fs-small)", color:s.labelColor, fontStyle:"italic" }}>{s.summary}</div>
                 </div>
                 <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
@@ -745,12 +742,13 @@ function SlideStart() {
           );
         })}
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:8 }}>
         {[
-          { when:"Day 1", what:"Kickoff - split decided, first game selected, spec template locked", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
-          { when:"Weeks 1-4", what:"AgentGames layer built, adapters written, agents configured", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
-          { when:"Weeks 5-8", what:"First game built and shipped through the new pipeline", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
-          { when:"Week 9+", what:"Full cadence, QA agents in, one game per week", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+          { when:"Weeks 1-4", what:"Phase 1 - Build the agents and systems", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+          { when:"Weeks 5-8", what:"Phase 2 - Create the first game", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+          { when:"Weeks 9-12", what:"Phase 3 - Second iteration of the systems", color:"#EEEDFE", border:"#AFA9EC", tc:"#3C3489" },
+          { when:"Weeks 13-16", what:"Phase 4 - Two games in parallel with lessons applied", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+          { when:"Weeks 17+", what:"Phase 5 - Stabilise and move into full production", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
         ].map(function(item, i) {
           return (
             <div key={i} style={{ background:item.color, border:"0.5px solid "+item.border, borderRadius:8, padding:"0.65rem" }}>
@@ -760,7 +758,91 @@ function SlideStart() {
           );
         })}
       </div>
-      <Note>The redesign work and the pipeline work are not in conflict - they run in parallel and both move the studio forward. By week 8 the redesigns are progressing and the first new-generation game is live.</Note>
+      <Note>Both tracks run in parallel. By week 8 the first game is ready. By week 16 two games ship in parallel. From week 17 the pipeline enters full production.</Note>
+    </div>
+  );
+}
+
+function SlideResponsibilities() {
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  var items = [
+    { area:"Maccabi app", headline:"New OT App flow", color:"#EEEDFE", border:"#AFA9EC", tc:"#534AB7",
+      current:["One developer from my team","One designer from my team"],
+      desired:["Shift ownership to the not-yet-founded Meta team","Frees one developer to move to the new games track"] },
+    { area:"Redesign", headline:"Redesign the remaining games", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
+      current:["One full-time developer","One part-time developer at 40% availability"],
+      desired:["Two full-time developers"],
+      pipeline:[
+        { name:"Climbing", status:"90% done" },
+        { name:"Graph motor", status:"Done" },
+        { name:"Magic Lake", status:"Started Apr 12" },
+        { name:"Mineral Smash", status:"Started Apr 12" },
+        { name:"Gliding", status:"Apr 27" },
+        { name:"Hoverbike", status:"Apr 27" },
+        { name:"Spaceflight", status:"May 11" },
+        { name:"Glacier Hops", status:"May 11" },
+        { name:"Hovering", status:"May 25" },
+        { name:"Rainbow Run", status:"May 25" },
+        { name:"Balance", status:"Jun 8" },
+      ] },
+    { area:"New games", headline:"New games from KSV", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041",
+      current:["No developers assigned"],
+      desired:["One studio developer - reallocated from Maccabi once the Meta team takes it over"] },
+    { area:"Scalability", headline:"Scalability system with agents", color:"var(--bg2)", border:"var(--b3)", tc:"var(--t2)",
+      current:["No developers assigned"],
+      desired:["One studio developer - scalability agent"] },
+  ];
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="Current studio responsibilities" subtitle="The work already on our plate, and the staffing each track needs." />
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {items.map(function(a, i) {
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?a.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <Badge color={a.color} border={a.border} tc={a.tc}>{a.area}</Badge>
+                <div style={{ flex:1, fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>{a.headline}</div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)", display:"flex", flexDirection:"column", gap:"0.85rem" }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.85rem" }}>
+                    <div>
+                      <SectionLabel>Current</SectionLabel>
+                      <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:1.8 }}>
+                        {a.current.map(function(d, j) { return <div key={j}>{d}</div>; })}
+                      </div>
+                    </div>
+                    <div>
+                      <SectionLabel>Desired</SectionLabel>
+                      <div style={{ fontSize:"var(--fs-small)", color:a.tc, lineHeight:1.8 }}>
+                        {a.desired.map(function(d, j) { return <div key={j}>{d}</div>; })}
+                      </div>
+                    </div>
+                  </div>
+                  {a.pipeline && (
+                    <div style={{ marginTop:"0.2rem" }}>
+                      <SectionLabel>Game redesign pipeline</SectionLabel>
+                      <div style={{ display:"flex", flexDirection:"column", marginTop:"0.4rem" }}>
+                        {a.pipeline.map(function(p, j) {
+                          return (
+                            <div key={j} style={{ display:"flex", justifyContent:"space-between", padding:"0.4rem 0", borderBottom: j === a.pipeline.length-1 ? "none" : "0.5px solid var(--b3)", fontSize:"var(--fs-small)" }}>
+                              <span style={{ color:"var(--t1)" }}>{p.name}</span>
+                              <span style={{ color:a.tc, fontWeight:500 }}>{p.status}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -774,7 +856,12 @@ function SlideAsk() {
     { area:"Germany", headline:"Collaboration with the Germany tech team", color:"#E1F5EE", border:"#5DCAA5", tc:"#085041",
       body:"The Germany team has deep expertise in agent skills and agentic workflows. Their support during weeks 1-4 will raise the quality of the foundation and shorten the time to a working pipeline." },
     { area:"Structure", headline:"Split the studio into Games and Meta teams", color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C",
-      body:"The Games team leverages the new pipeline to build titles. The Meta team owns the apps that wrap and use those games. To run both in parallel, the Meta team needs one additional developer and one additional designer dedicated to it." },
+      stats:[
+        { n:"+1", label:"developer for the Meta team" },
+        { n:"+1", label:"designer for the Meta team" },
+        { n:"+1", label:"replace part-time with full-time dev on the Games team" },
+      ],
+      body:"The Games team leverages the new pipeline to build titles. The Meta team owns the apps that wrap and use those games. To run both tracks in parallel, the Meta team needs dedicated headcount and the Games team needs its current part-time developer converted to full-time." },
   ];
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
@@ -789,6 +876,18 @@ function SlideAsk() {
                 <div style={{ flex:1, fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>{a.headline}</div>
                 <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
               </div>
+              {a.stats && (
+                <div style={{ marginTop:"0.75rem", display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8 }}>
+                  {a.stats.map(function(s, j) {
+                    return (
+                      <div key={j} style={{ background:a.color, border:"0.5px solid "+a.border, borderRadius:8, padding:"0.6rem 0.75rem", display:"flex", alignItems:"center", gap:"0.6rem" }}>
+                        <div style={{ fontSize:"1.4rem", fontWeight:700, color:a.tc, lineHeight:1 }}>{s.n}</div>
+                        <div style={{ fontSize:"var(--fs-label)", color:a.tc, lineHeight:1.3 }}>{s.label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
               {isOpen && (
                 <div className="slide-enter" style={{ marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
                   <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{a.body}</div>
@@ -825,8 +924,8 @@ function SlideCredits() {
   );
 }
 
-var slideComponents = [SlideVision, SlideStations, SlideFirstAgents, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart, SlideAsk, SlideCredits];
-var slideLabels = ["Vision","Stations","First agents","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step","The ask","Credits"];
+var slideComponents = [SlideVision, SlideStations, SlideFirstAgents, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart, SlideResponsibilities, SlideAsk, SlideCredits];
+var slideLabels = ["Vision","Stations","First agents","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step","Responsibilities","The ask","Credits"];
 
 function NavButton({ onClick, disabled, children }) {
   var [hovered, setHovered] = useState(false);

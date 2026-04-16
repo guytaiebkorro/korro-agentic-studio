@@ -387,7 +387,12 @@ function SlideFirstAgents() {
       skills:"Spec template authoring, scope reasoning, dependency identification",
       output:"Completed feature spec with scope, features, dependencies, and open questions",
       color:"#EEEDFE", border:"#AFA9EC", tc:"#534AB7" },
-    { name:"Jira ticket agent", summary:"Breaks the spec into Jira tickets with clear acceptance criteria",
+    { name:"Entity extractor agent", summary:"Reads the spec and generates an entity bible for game artists and designers",
+      prompt:"From the approved feature spec, extract every entity the game requires and produce a structured entity bible describing each one.",
+      skills:"Spec parsing, entity identification, visual-brief writing, artist-facing documentation",
+      output:"Entity bible with names, descriptions, visual notes, and relationships - ready for the design team",
+      color:"#EEEDFE", border:"#AFA9EC", tc:"#534AB7" },
+    { name:"Task creation agent", summary:"Breaks the spec into Jira tickets with clear acceptance criteria",
       prompt:"Break down the approved feature spec into Jira tickets with acceptance criteria and estimated effort.",
       skills:"Ticket decomposition, acceptance-criteria authoring, dependency mapping",
       output:"A list of Jira tickets linked to the spec, each with acceptance criteria",
@@ -438,7 +443,64 @@ function SlideFirstAgents() {
           );
         })}
       </div>
-      <Note>Everything else comes later. These six agents are enough to run a full game through the pipeline end-to-end.</Note>
+      <Note>Everything else comes later. These seven agents are enough to run a full game through the pipeline end-to-end.</Note>
+    </div>
+  );
+}
+
+function SlideAgentGames() {
+  var pillars = [
+    { title:"Games defined as data, not code", summary:"Every new game is a manifest - a structured file that describes what the game is. No custom wiring, no duplicated prefabs, no scene surgery.",
+      detail:"Today, building a new game means weeks of hand-wiring inside Unity. With AgentGames, a game is a YAML file that the system reads and runs. That changes what is possible: an agent can author a game, a designer can tweak one, and the whole thing can be versioned and reviewed like a document.",
+      color:"#EEEDFE", border:"#AFA9EC", tc:"#534AB7" },
+    { title:"Shared systems, clean boundaries", summary:"Flow, scoring, tutorials - the systems every game needs - are shared once and plugged in cleanly. Adding a game cannot break what already works.",
+      detail:"Right now, games inherit directly from shared code. A change in one place can quietly break another. AgentGames puts a thin adapter layer between each game and the shared systems. Games plug in, they do not reach in. The result: the platform gets more stable with every title, not more fragile.",
+      color:"#E1F5EE", border:"#5DCAA5", tc:"#085041" },
+    { title:"From weeks to days", summary:"A playable prototype in hours instead of days. A full mini-game with levels in days instead of weeks.",
+      detail:"When the scaffolding is automatic and the wiring is declarative, the developer's time goes to the parts that matter - feel, polish, and the decisions an agent cannot make. The mechanical setup that used to consume the first week is handled before the developer sits down.",
+      color:"#FAECE7", border:"#F0997B", tc:"#4A1B0C" },
+    { title:"Built for agents to author", summary:"The entire layer is designed so that AI agents can generate, modify, and extend games from a spec - with humans steering the result.",
+      detail:"This is not an afterthought. The manifest format, the adapter pattern, the asset pipeline - every design decision was made with one question: can an agent produce this reliably, and can a human review it quickly? That is what makes the one-game-per-week target realistic.",
+      color:"#F0E8FF", border:"#C4A8F0", tc:"#4A2080" },
+  ];
+  var [expanded, setExpanded] = useState(-1);
+  function toggle(i) { setExpanded(function(prev) { return prev === i ? -1 : i; }); }
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"var(--gap-section)" }}>
+      <SlideHeader title="AgentGames" subtitle="A new technical layer purpose-built for agentic game production. It sits alongside the existing codebase - nothing legacy is touched." />
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"var(--gap-card)" }}>
+        <div style={{ background:"var(--bg2)", borderRadius:10, padding:"var(--pad-card)" }}>
+          <div style={{ fontSize:"var(--fs-stat)", fontWeight:500, color:"var(--t1)", lineHeight:1 }}>4x</div>
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", marginTop:6 }}>faster from spec to playable prototype</div>
+        </div>
+        <div style={{ background:"var(--bg2)", borderRadius:10, padding:"var(--pad-card)" }}>
+          <div style={{ fontSize:"var(--fs-stat)", fontWeight:500, color:"var(--t1)", lineHeight:1 }}>0</div>
+          <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", marginTop:6 }}>risk to existing games and systems</div>
+        </div>
+      </div>
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {pillars.map(function(p, i) {
+          var isOpen = expanded === i;
+          return (
+            <div key={i} onClick={function() { toggle(i); }} style={{ background:"var(--bg1)", border:"0.5px solid "+(isOpen?p.border:"var(--b3)"), borderRadius:10, padding:"var(--pad-card)", cursor:"pointer", transition:"border-color 0.2s" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                <div style={{ width:4, height:4, borderRadius:2, background:p.border, flexShrink:0 }}/>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:"var(--fs-body)", fontWeight:500, color:"var(--t1)" }}>{p.title}</div>
+                  <div style={{ fontSize:"var(--fs-small)", color:"var(--t3)", marginTop:2 }}>{p.summary}</div>
+                </div>
+                <div style={{ fontSize:14, color:"var(--t3)", transition:"transform 0.2s", transform:isOpen?"rotate(180deg)":"rotate(0deg)", flexShrink:0 }}>▾</div>
+              </div>
+              {isOpen && (
+                <div className="slide-enter" style={{ marginTop:"0.85rem", paddingTop:"0.85rem", borderTop:"0.5px solid var(--b3)" }}>
+                  <div style={{ fontSize:"var(--fs-small)", color:"var(--t2)", lineHeight:"var(--lh-body)" }}>{p.detail}</div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <Note accent="#AFA9EC"><span style={{ fontWeight:500, color:"#3C3489" }}>Key point: </span>AgentGames is not a rewrite. It is a new layer that sits on top of what we have. Existing games keep running exactly as they do today. The investment compounds - every system we wrap, every adapter we build, makes the next game cheaper and faster to produce.</Note>
     </div>
   );
 }
@@ -924,8 +986,8 @@ function SlideCredits() {
   );
 }
 
-var slideComponents = [SlideVision, SlideStations, SlideFirstAgents, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart, SlideResponsibilities, SlideAsk, SlideCredits];
-var slideLabels = ["Vision","Stations","First agents","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step","Responsibilities","The ask","Credits"];
+var slideComponents = [SlideVision, SlideStations, SlideFirstAgents, SlideAgentGames, SlidePipeline, SlideRoles, SlideDesign, SlideGameDirection, SlideArchitecture, SlideTransition, SlideRisks, SlideStart, SlideResponsibilities, SlideAsk, SlideCredits];
+var slideLabels = ["Vision","Stations","First agents","AgentGames","Pipeline","Roles","Design shift","Game direction","Architecture","Transition","Risks","First step","Responsibilities","The ask","Credits"];
 
 function NavButton({ onClick, disabled, children }) {
   var [hovered, setHovered] = useState(false);
